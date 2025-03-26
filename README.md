@@ -36,7 +36,7 @@ A Lightning Web Component that integrates with Salesforce's Agentforce API to pr
 
 3. Assign the permission set to users:
    ```
-   sfdx force:user:permset:assign -n MessengerChatPermissions
+   sf org assign permset --name MessengerChatPermissions
    ```
 
 ### Step 2: Set Up Agentforce
@@ -102,14 +102,20 @@ A Lightning Web Component that integrates with Salesforce's Agentforce API to pr
      - Manage user data via APIs (api)
      - Perform requests at any time (refresh_token, offline_access)
 4. Uncheck other boxes, only check below:
-5. `Enable Client Credentials Flow`: Checked
-6. `Issue JSON Web Token (JWT)-based access tokens for named users`: Checked
+   - `Enable Client Credentials Flow`: Checked
+   - `Issue JSON Web Token (JWT)-based access tokens for named users`: Checked
 7. Save the connected app
 8. Once saved, go and view the Connected App
-   - Press Manage Consumer Details:
-   - Retrieve the and save it for later:
+   - Press Manage Consumer Details
+   - Retrieve these and save it for later:
       - Consumer Key
       - Consumer Secret
+9. After saving the details, press `Manage` at the top of the page
+10. Press `Edit Policies` at the top
+11. Make sure the following is selected:
+   - Permitted Users: `All users may self-authorize`
+   - IP Relaxation: `Relax IP Restrictions`
+   - Client Credentials Flow: (Choose your User)
 
 ### Step 4: Configure Named Credentials
 
@@ -140,6 +146,21 @@ A Lightning Web Component that integrates with Salesforce's Agentforce API to pr
    - External Credential: `AgentforceAPI` (the one you just created)
    - `Generate Authorization Header` checked
 3. Save the Named Credential
+
+## Step 4.3: Assign External Credentials to Messenger Chat Permission Set
+1. Navigate to Setup → Permission Sets → `Messenger Chat Permissions`
+2. Navigate to External Credential Principal Access
+3. Press Edit and select the name of the External Credential you just created
+4. Save and Close
+
+## Step 4.4: Assign Connected App to your Agent
+1. Navigate to Agents and select the Agent you want to use
+2. Navigate to the `Connections` tab
+3. Scroll down to Connections and press the `Add` button
+   - Connection: `API`
+   - Integration Name: `AgentforceAPI`
+   - Connected App: `Agentforce API`
+4. Save
 
 ### Step 5: Set Up Remote Site Settings
 
