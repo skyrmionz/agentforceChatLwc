@@ -21,11 +21,13 @@
             <property name="position" type="String" label="Chat Position" description="Position of the chat window" />
             <property name="agentId" type="String" label="Agent ID" description="ID of the Agentforce agent" />
             <property name="headerText" type="String" label="Header Text" description="Text shown in the chat header" />
+            <property name="murfApiKey" type="String" label="Murf API Key" description="API key for Murf.ai text-to-speech service" />
         </targetConfig>
         <targetConfig targets="lightningCommunity__Default">
             <property name="agentName" type="String" label="Agent Name" description="Name of the AI agent" />
             <property name="defaultDarkMode" type="Boolean" label="Default Dark Mode" description="Enable dark mode by default" />
             <property name="agentId" type="String" label="Agent ID" description="ID of the Agentforce agent" />
+            <property name="murfApiKey" type="String" label="Murf API Key" description="API key for Murf.ai text-to-speech service" />
         </targetConfig>
     </targetConfigs>
 </LightningComponentBundle> 

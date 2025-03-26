@@ -16,6 +16,7 @@ export default class MessengerChat extends LightningElement {
     @api position = 'bottom-right';
     @api agentId = '0XxHu000000l1BHKAY'; // Replace with your actual Agentforce Agent ID
     @api headerText = 'Agentforce';
+    @api murfApiKey = ''; // API key for Murf.ai TTS service
 
     // Reactive component state
     @track messages = [];
@@ -127,7 +128,7 @@ export default class MessengerChat extends LightningElement {
         const maxRetries = 2;
 
         const performInitialization = () => {
-            initializeAgentSession({ agentId: this.agentId })
+            initializeAgentSession({ agentId: this.agentId, murfApiKey: this.murfApiKey })
                 .then(result => {
                     clearTimeout(initializationTimeout);
                     console.log('Session initialized successfully:', result);
@@ -517,7 +518,7 @@ export default class MessengerChat extends LightningElement {
         const maxRetries = 1;
 
         const getResponse = () => {
-            getAgentRecommendation({ sessionId: this.sessionId, message })
+            getAgentRecommendation({ sessionId: this.sessionId, message, murfApiKey: this.murfApiKey })
                 .then(response => {
                     console.log('Agent response received, length:', response ? response.length : 0);
                     
@@ -880,7 +881,7 @@ export default class MessengerChat extends LightningElement {
 
     // Update the speakWithMurfApi method with improved error handling and logging
     speakWithMurfApi(cleanText) {
-        return callMurfTTS({ text: cleanText })
+        return callMurfTTS({ text: cleanText, murfApiKey: this.murfApiKey })
             .then(result => {
                 console.log('Received audio URL from proxy:', result);
                 return new Promise((resolve, reject) => {
