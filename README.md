@@ -19,7 +19,7 @@ A Lightning Web Component that integrates with Salesforce's Agentforce API to pr
 
 - Salesforce org with Experience Cloud
 - Agentforce access
-- Murf.ai API key (if using text-to-speech functionality)
+- Murf.ai API key (sign up for an account on https://murf.ai/ and retrieve your own API key)
 
 ## IMPORTANT: As I make edits to the main code for improvements (check the repo for new commits!), in your terminal, use these commands to pull the latest:
 
