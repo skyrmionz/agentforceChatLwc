@@ -130,7 +130,7 @@ A Lightning Web Component that integrates with Salesforce's Agentforce API to pr
    - Save
 
 ##Step 4.2: Configure Named Credentials
-1. Navigate back to Named Credentials → External Credentials Tab → New
+1. Navigate back to Named Credentials → Named Credentials Tab → New
 2. Fill in the details:
    - Label: `AgentforceAPI`
    - Name: `AgentforceAPI`
