@@ -21,6 +21,28 @@ A Lightning Web Component that integrates with Salesforce's Agentforce API to pr
 - Agentforce access
 - Murf.ai API key (if using text-to-speech functionality)
 
+## IMPORTANT: As I make edits to the main code for improvements, just use `git pull` and then `sf project deploy start` to deploy the new code!
+
+### Step 0: Enable and use Code Builder (OPTIONAL)
+
+Use Code Builder to deploy the LWC! and You could use Visual Studio Code as well, but if you don't want to leave the platform and want to learn to use the tool, consider doing this in Code Builder!
+
+Full guide here: https://developer.salesforce.com/docs/platform/code-builder/guide/codebuilder-quickstart-intro.html
+
+1. Navigate to Setup → Code Builder
+2. Toggle on `Enable Code Builder`
+3. Install the Package
+4. Wait a few minutes, then navigate to the `Code Builder` app in App Launcher
+5. Press the `Launch` button
+6. Click `Connect an Org` to connect your Salesforce Org
+   - Use your Org's Domain and login into it
+   - Give your Org an alias, and save it
+   - Follow the steps to login and authenticate/authorize properly
+7. Set your Target Org with:
+```
+sfdx force:config:set target-org=(your Org alias name)
+```
+
 ### Step 1: Deploy the Code
 
 1. Clone this repository:
@@ -247,3 +269,4 @@ You can customize the appearance and behavior of the chat widget by:
 ## Looking Forward
 - Planning on adding multi-modal image text extraction capabilities to Agent next
 - Going to make this a deployable LWC
+- Planning on
