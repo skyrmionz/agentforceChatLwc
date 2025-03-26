@@ -52,6 +52,8 @@ sfdx force:config:set target-org=(your Org alias name)
 
 ### Step 1: Deploy the Code
 
+In your terminal, (in Code Builder, click into the 3 lines on top left corner → Terminal → New Terminal). Type in these commands:
+
 1. Clone this repository:
    ```
    git clone https://github.com/skyrmionz/agentforceChatLwc.git
