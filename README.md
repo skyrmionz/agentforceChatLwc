@@ -129,7 +129,7 @@ A Lightning Web Component that integrates with Salesforce's Agentforce API to pr
    - Client Secret: (The Consumer Secret from your Connected App)
    - Save
 
-##Step 4.2: Configure Named Credentials
+## Step 4.2: Configure Named Credentials
 1. Navigate back to Named Credentials → Named Credentials Tab → New
 2. Fill in the details:
    - Label: `AgentforceAPI`
