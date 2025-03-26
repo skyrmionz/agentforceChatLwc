@@ -21,7 +21,7 @@ A Lightning Web Component that integrates with Salesforce's Agentforce API to pr
 - Agentforce access
 - Murf.ai API key (if using text-to-speech functionality)
 
-## IMPORTANT: As I make edits to the main code for improvements, just use:
+## IMPORTANT: As I make edits to the main code for improvements, in your terminal, use these commands to pull the latest:
 ```
 git pull
 ``` 
@@ -29,7 +29,6 @@ and then,
 ```
 sf project deploy start
 ``` 
-to deploy the new code!
 
 ### Step 0: Enable and use Code Builder (OPTIONAL)
 
