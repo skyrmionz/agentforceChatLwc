@@ -31,7 +31,7 @@ A Lightning Web Component that integrates with Salesforce's Agentforce API to pr
 
 2. Deploy to your org using Salesforce CLI:
    ```
-   sfdx force:source:deploy -p force-app
+   sf project deploy start
    ```
 
 3. Assign the permission set to users:
