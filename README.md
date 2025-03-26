@@ -150,6 +150,7 @@ In your terminal, (in Code Builder, click into the 3 lines on top left corner â†
    - Permitted Users: `All users may self-authorize`
    - IP Relaxation: `Relax IP Restrictions`
    - Client Credentials Flow: (Choose your User)
+12. Save
 
 ### Step 4: Configure Named Credentials
 
@@ -281,4 +282,4 @@ You can customize the appearance and behavior of the chat widget by:
 ## Looking Forward
 - Planning on adding multi-modal image text extraction capabilities to Agent next
 - Going to make this a deployable LWC
-- Planning on
+- Planning on adding more customization to LWC (choosing color, sizing)
