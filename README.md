@@ -12,6 +12,7 @@ A Lightning Web Component that integrates with Salesforce's Agentforce API to pr
 - Responsive design
 - Rich formatting for chat messages
 - Agentforce reasoning display
+- Agentforce reasoning display
 
 ## Deployment Instructions
 
@@ -131,6 +132,10 @@ A Lightning Web Component that integrates with Salesforce's Agentforce API to pr
    - Trusted Site Name: `MurfAudioPlayback`
    - Trusted Site URL: `https://murf.ai`
    - Active: Checked
+4. Create another trusted site for Murf.ai Audio Playback (if using TTS):
+   - Trusted Site Name: `MurfAudioPlayback`
+   - Trusted Site URL: `https://murf.ai`
+   - Active: Checked
 4. Save the remote site settings
 
 ### Step 6: Set Up CSP Trusted Sites
@@ -146,6 +151,12 @@ A Lightning Web Component that integrates with Salesforce's Agentforce API to pr
    - Trusted Site URL: `https://api.murf.ai`
    - Active: Checked
    - Context: Allow all contexts
+4. Create another trusted site for Murf.ai Audio Playback (if using TTS):
+   - Trusted Site Name: `MurfAudioPlayback`
+   - Trusted Site URL: `https://murf.ai`
+   - Active: Checked
+   - Context: Allow all contexts
+5. Save the trusted sites
 4. Create another trusted site for Murf.ai Audio Playback (if using TTS):
    - Trusted Site Name: `MurfAudioPlayback`
    - Trusted Site URL: `https://murf.ai`
@@ -175,6 +186,7 @@ A Lightning Web Component that integrates with Salesforce's Agentforce API to pr
    - Your Salesforce org domain
    - `https://api.murf.ai` (if using TTS)
    - `https://murf.ai`
+   - `https://murf.ai`
 
 ### Step 9: Test the Integration
 
@@ -197,6 +209,9 @@ You can customize the appearance and behavior of the chat widget by:
 1. Modifying the CSS in `messengerChat.css`
 2. Updating default properties in `messengerChat.js`
 3. Configuring component properties in Experience Builder
+
+## Looking Forward
+- Planning on adding multi-modal image text extraction capabilities to Agent next
 
 ## Looking Forward
 - Planning on adding multi-modal image text extraction capabilities to Agent next
