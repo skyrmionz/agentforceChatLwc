@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Provides access to Messenger Chat functionality</description>
+    <hasActivationRequired>false</hasActivationRequired>
+    <label>Messenger Chat Permissions</label>
+    <classAccesses>
+        <apexClass>MessengerChatController</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>MurfTTSController</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+</PermissionSet> 

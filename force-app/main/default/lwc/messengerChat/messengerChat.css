@@ -1,0 +1,1270 @@
+/* Chat bubble (initial state) */
+.chat-bubble {
+    width: 60px !important;
+    height: 60px !important;
+    position: fixed !important;
+    bottom: 20px !important;
+    right: 20px !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2) !important;
+    background-color: #0070d2 !important;
+    cursor: pointer !important;
+    z-index: 9000 !important;
+    transition: all 0.3s ease !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    max-width: 60px !important;
+    min-width: 60px !important;
+    max-height: 60px !important;
+    min-height: 60px !important;
+    flex: 0 0 60px !important;
+    transform: none !important;
+}
+
+.chat-bubble:hover {
+    transform: scale(1.1);
+}
+
+/* Einstein icon specifically needs this styling to show up */
+.chat-bubble .slds-icon_container {
+    background-color: transparent !important;
+}
+
+.chat-bubble lightning-icon {
+    --sds-c-icon-color-background: transparent !important;
+    --sds-c-icon-color-foreground-default: white !important;
+    --lwc-colorTextIconInverse: white;
+    transform: scale(1.2); /* Larger scale for visibility */
+}
+
+.chat-bubble.position-bottom-right {
+    right: 20px;
+}
+
+.chat-bubble.position-bottom-left {
+    left: 20px;
+}
+
+/* Base styling for chat window */
+.chat-window {
+    position: fixed !important;
+    bottom: 30px !important;
+    right: 30px !important;
+    width: 400px !important;
+    height: 600px !important;
+    background-color: #fff !important;
+    border-radius: 15px !important;
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.3) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+    transition: all 0.3s ease !important;
+    z-index: 9000 !important;
+    transform: translateZ(0) !important;
+    will-change: transform !important;
+    animation: chat-window-float 0.5s ease-out !important;
+}
+
+@keyframes chat-window-float {
+    0% {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Position adjustments */
+.chat-window.position-bottom-right {
+    bottom: 30px;
+    right: 30px;
+}
+
+.chat-window.position-bottom-left {
+    bottom: 30px;
+    left: 30px;
+}
+
+.chat-window.position-top-right {
+    top: 30px;
+    right: 30px;
+}
+
+.chat-window.position-top-left {
+    top: 30px;
+    left: 30px;
+}
+
+/* Header styling */
+.chat-header {
+    background-color: #0076d3 !important;
+    color: white !important;
+    padding: 15px !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    font-weight: 600 !important;
+    border-radius: 15px 15px 0 0 !important;
+    cursor: move !important;
+    user-select: none !important;
+}
+
+.chat-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.header-actions {
+    display: flex;
+    gap: 5px;
+    position: relative;
+}
+
+.action-button {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background-color 0.2s;
+}
+
+.action-button:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Message area */
+.chat-messages {
+    padding: 15px;
+    padding-left: 8px;
+    padding-right: 8px;
+    padding-top: 35px;
+    overflow-y: auto;
+    flex-grow: 1;
+    height: 70%;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* Input area */
+.chat-input {
+    padding: 15px;
+    border-top: 1px solid #eee;
+    display: flex;
+    flex-direction: column;
+    background-color: #f9f9f9;
+    height: auto;
+    padding-bottom: 20px;
+}
+
+.textarea-container {
+    display: flex;
+    position: relative;
+}
+
+.input-container {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    gap: 12px;
+}
+
+/* Adjust text area to increase height */
+.chat-window textarea {
+    flex-grow: 1;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    padding: 12px 15px;
+    resize: none;
+    outline: none;
+    font-family: inherit;
+    font-size: 14px;
+    line-height: 1.4;
+    height: 48px;
+    max-height: 120px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    width: 100%;
+    color: #000 !important;
+    overflow: hidden;
+    transition: height 0.2s ease;
+}
+
+/* Ensure placeholder text appears in both light and dark mode */
+.chat-window textarea::placeholder {
+    color: #666 !important;
+    opacity: 1;
+}
+
+.dark-mode textarea::placeholder {
+    color: #aaa !important;
+    opacity: 1;
+}
+
+/* Show scrollbar only when content exceeds visible area */
+.chat-window textarea.expanded {
+    overflow-y: auto;
+}
+
+.chat-window textarea:focus {
+    border-color: #0076d3;
+    box-shadow: 0 0 0 1px #0076d3;
+}
+
+/* Message styling */
+.message {
+    display: flex;
+    flex-direction: column;
+    max-width: 80%;
+    margin-bottom: 5px;
+    position: relative;
+}
+
+.message .message-content {
+    padding: 10px 15px;
+    border-radius: 15px;
+    position: relative;
+    word-wrap: break-word;
+    color: #000 !important;
+}
+
+.message .timestamp {
+    font-size: 11px;
+    opacity: 0.7;
+    margin-top: 5px;
+    text-align: right;
+}
+
+/* Bot message styling */
+.bot-message {
+    align-self: flex-start;
+    margin-left: 8px;
+    position: relative;
+    display: flex !important;
+    align-items: flex-start;
+    padding-left: 0;
+    width: 100%;
+    max-width: 95%; /* Allow message to use more horizontal space */
+}
+
+.bot-message-container {
+    display: flex !important;
+    align-items: flex-start;
+    min-width: 0;
+    position: relative;
+    width: 100%;
+}
+
+/* Bot icon container */
+.bot-icon-container {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: #0076d3;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    margin-right: 12px;
+    flex-shrink: 0;
+    z-index: 2;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.bot-icon-container lightning-icon {
+    --sds-c-icon-color-foreground-default: white !important;
+    --sds-c-icon-color-background: transparent !important;
+    transform: scale(0.9);
+}
+
+/* Ensure agent messages are BLACK in light mode */
+.bot-message .message-content {
+    background-color: transparent !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    border: none !important;
+    color: black !important; /* Explicitly black for visibility */
+    margin-top: 3px;
+    margin-left: 2px;
+    flex: 1;
+    min-width: 0;
+    width: 100%;
+}
+
+/* Ensure paragraph text is visible */
+.bot-message .message-content p {
+    margin-bottom: 10px;
+    line-height: 1.4;
+    color: black !important; /* Force black color for visibility */
+}
+
+/* Explicit color for divs inside message content */
+.bot-message .message-content div {
+    color: black !important;
+}
+
+/* Make sure HTML content is visible - fixed selector */
+.bot-message .message-content div.lwc-manual-render {
+    color: black !important;
+}
+
+/* Dark mode overrides should come after light mode defaults */
+.dark-mode .bot-message .message-content {
+    color: #f0f0f0 !important;
+}
+
+.dark-mode .bot-message .message-content p,
+.dark-mode .bot-message .message-content div,
+.dark-mode .bot-message .message-content div.lwc-manual-render {
+    color: #f0f0f0 !important;
+}
+
+.bot-message .message-content a {
+    color: #0076d3;
+    text-decoration: underline;
+    word-break: break-all;
+}
+
+.bot-message .message-content h1 {
+    font-size: 20px;
+    font-weight: bold;
+    margin-top: 12px;
+    margin-bottom: 10px;
+}
+
+.bot-message .message-content h2 {
+    font-size: 18px;
+    font-weight: bold;
+    margin-top: 10px;
+    margin-bottom: 6px;
+}
+
+.bot-message .message-content h3 {
+    font-size: 16px;
+    font-weight: bold;
+    margin-top: 8px;
+    margin-bottom: 5px;
+}
+
+.bot-message .message-content ul {
+    margin-top: 8px;
+    margin-bottom: 8px;
+    margin-left: 20px;
+    list-style-type: disc;
+}
+
+.bot-message .message-content li {
+    margin-bottom: 4px;
+}
+
+.bot-message .message-content blockquote {
+    border-left: 3px solid #0076d3;
+    padding-left: 10px;
+    margin-left: 5px;
+    margin-top: 8px;
+    margin-bottom: 8px;
+    font-style: italic;
+}
+
+.bot-message .message-content br {
+    display: block;
+    margin: 8px 0;
+    content: "";
+}
+
+.bot-message .message-content b, 
+.bot-message .message-content strong {
+    font-weight: bold;
+}
+
+.bot-message .message-content i, 
+.bot-message .message-content em {
+    font-style: italic;
+}
+
+/* Dark mode styling for HTML elements */
+.dark-mode .bot-message .message-content h1,
+.dark-mode .bot-message .message-content h2,
+.dark-mode .bot-message .message-content h3,
+.dark-mode .bot-message .message-content p,
+.dark-mode .bot-message .message-content li {
+    color: #f0f0f0 !important;
+}
+
+.dark-mode .bot-message .message-content blockquote {
+    border-left-color: #3182ce;
+}
+
+/* Dark mode styling for agent messages - should be light colored */
+.dark-mode .bot-message .message-content {
+    background-color: transparent !important;
+    color: #f0f0f0 !important;
+}
+
+/* User message styling */
+.user-message {
+    align-self: flex-end;
+    margin-right: 8px;
+}
+
+.user-message .message-content {
+    background-color: #0076d3;
+    color: white !important;
+    border-top-right-radius: 5px;
+    box-shadow: none;
+}
+
+/* System message styling */
+.system-message {
+    align-self: center;
+    max-width: 90%;
+}
+
+.system-message .message-content {
+    background-color: #f5f5f5;
+    color: #000 !important;
+    border: 1px solid #e0e0e0;
+    box-shadow: none;
+}
+
+/* Dark mode override for system message */
+.dark-mode .system-message .message-content {
+    background-color: #4a5568 !important;
+    color: #e2e8f0 !important;
+    border-color: #4a5568 !important;
+}
+
+/* Options menu styling */
+.options-menu {
+    position: absolute;
+    top: 40px;
+    right: 0;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    width: 200px;
+    z-index: 1000;
+    overflow: hidden;
+}
+
+.options-menu ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.options-menu li {
+    padding: 10px 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    color: #000 !important;
+}
+
+.options-menu li:hover {
+    background-color: #f5f5f5;
+}
+
+.options-menu span {
+    font-size: 14px;
+}
+
+/* Dark mode styling for options menu */
+.dark-mode .options-menu {
+    background-color: #2d2d2d;
+    color: #fff;
+}
+
+.dark-mode .options-menu li {
+    color: #fff !important;
+}
+
+.dark-mode .options-menu li:hover {
+    background-color: #3d3d3d;
+}
+
+/* Dark mode icon fixes */
+.dark-mode .options-menu li lightning-icon {
+    --sds-c-icon-color-foreground-default: #fff;
+}
+
+/* Ensure icons are visible */
+.header-icon {
+    display: flex;
+    margin-right: 10px;
+}
+
+/* Fix header title positioning */
+.header-title {
+    margin-left: 0 !important;
+    font-weight: 600;
+    font-size: 16px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Handle the menu click outside */
+:host {
+    display: block;
+}
+
+/* Add event handler to close menu when clicking outside */
+.chat-window {
+    position: relative;
+}
+
+@media (max-width: 480px) {
+    .chat-window {
+        width: 90%;
+        height: 90%;
+        bottom: 5%;
+        right: 5%;
+    }
+    
+    .message {
+        max-width: 90%;
+    }
+}
+
+/* Modal styling */
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.modal-content {
+    background-color: #fff;
+    color: #000 !important;
+    border-radius: 8px;
+    padding: 20px;
+    width: 300px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    text-align: center;
+}
+
+.dark-mode .modal-content {
+    background-color: #2a2b32 !important;
+    color: #f0f0f0 !important;
+    border: 1px solid #444 !important;
+}
+
+.modal-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+/* Modal buttons */
+.modal-button {
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    cursor: pointer;
+    border: none;
+    transition: background-color 0.2s;
+    min-width: 100px;
+}
+
+.cancel-button {
+    background-color: #f2f2f2;
+    color: #333;
+}
+
+.cancel-button:hover {
+    background-color: #e5e5e5;
+}
+
+.confirm-button {
+    background-color: #ff0000 !important;
+    color: white !important;
+}
+
+.confirm-button:hover {
+    background-color: #cc0000 !important;
+}
+
+/* Dark mode modal button styling */
+.dark-mode .cancel-button {
+    background-color: #444;
+    color: #eaeaea;
+}
+
+.dark-mode .cancel-button:hover {
+    background-color: #555;
+}
+
+/* Chat bubble animation */
+@keyframes pulse {
+    0% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(0, 118, 211, 0.7);
+    }
+    
+    70% {
+        transform: scale(1);
+        box-shadow: 0 0 0 10px rgba(0, 118, 211, 0);
+    }
+    
+    100% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(0, 118, 211, 0);
+    }
+}
+
+.chat-bubble {
+    animation: pulse 2s infinite;
+}
+
+.chat-bubble:hover {
+    animation: none;
+}
+
+/* Typing indicator styling */
+.typing-indicator {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 10px;
+    background-color: #f0f0f0;
+    border-radius: 15px;
+    width: fit-content;
+    margin-bottom: 10px;
+}
+
+.typing-dot {
+    width: 8px;
+    height: 8px;
+    background-color: #777;
+    border-radius: 50%;
+    animation: typing-bounce 1.3s infinite;
+}
+
+.typing-dot:nth-child(2) {
+    animation-delay: 0.15s;
+}
+
+.typing-dot:nth-child(3) {
+    animation-delay: 0.3s;
+}
+
+@keyframes typing-bounce {
+    0%, 80%, 100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-5px);
+    }
+}
+
+/* Additional utility classes */
+.hide {
+    display: none !important;
+}
+
+.flex {
+    display: flex;
+}
+
+.items-center {
+    align-items: center;
+}
+
+.justify-center {
+    justify-content: center;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.text-italic {
+    font-style: italic;
+}
+
+/* Dark mode styling */
+.dark-mode {
+    background-color: #1a1c21 !important;
+    color: #f0f0f0 !important;
+}
+
+.dark-mode .chat-header {
+    background-color: #2d3748 !important;
+}
+
+.dark-mode .chat-input {
+    background-color: #252a36 !important;
+    border-top-color: #313642 !important;
+}
+
+.dark-mode textarea {
+    background-color: #2d3748 !important;
+    color: #f0f0f0 !important;
+    border-color: #4a5568 !important;
+}
+
+.dark-mode textarea:focus {
+    border-color: #63b3ed !important;
+    box-shadow: 0 0 0 1px #63b3ed !important;
+}
+
+.dark-mode .user-message .message-content {
+    background-color: #3182ce !important;
+    color: white !important;
+}
+
+.dark-mode .system-message .message-content {
+    background-color: #4a5568 !important;
+    color: #e2e8f0 !important;
+}
+
+/* Voice Mode Overlay */
+.voice-mode-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #1a1c21;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    border-radius: 15px;
+}
+
+.dark-mode .voice-mode-overlay {
+    background-color: #121417;
+}
+
+.voice-visualizer-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 30px;
+    border-radius: 15px;
+    background-color: rgba(0, 0, 0, 0.5);
+    width: 80%;
+    max-width: 300px;
+}
+
+.voice-status-text {
+    color: white;
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.voice-visualizer {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    height: 60px;
+    width: 100%;
+    gap: 5px;
+    margin-bottom: 20px;
+}
+
+.visualizer-bar {
+    width: 8px;
+    background-color: #0076d3;
+    height: 5px;
+    border-radius: 4px;
+    transition: height 0.1s ease;
+}
+
+.voice-instructions {
+    color: #ffffff;
+    font-size: 14px;
+    margin-top: 10px;
+    margin-bottom: 20px;
+    text-align: center;
+    font-style: italic;
+}
+
+.voice-continue-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    background-color: #0076d3;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    margin-bottom: 12px;
+    width: 180px;
+    height: 40px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.voice-continue-button:hover {
+    background-color: #0062b0;
+}
+
+.voice-continue-button lightning-icon {
+    --sds-c-icon-color-foreground-default: white;
+}
+
+.voice-exit-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    background-color: #e53935;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    width: 180px;
+    height: 40px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.voice-exit-button:hover {
+    background-color: #c62828;
+}
+
+.voice-exit-button lightning-icon {
+    --sds-c-icon-color-foreground-default: white;
+}
+
+@keyframes voice-bar {
+    0% {
+        height: 5px;
+    }
+    50% {
+        height: 30px;
+    }
+    100% {
+        height: 5px;
+    }
+}
+
+/* Dark mode override for voice visualizer */
+.dark-mode .visualizer-bar {
+    background-color: #3182ce;
+}
+
+/* Fix shimmer animation for correct left-to-right movement */
+@keyframes shimmer {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: 0% 0;
+    }
+}
+
+@-webkit-keyframes shimmer {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: 0% 0;
+    }
+}
+
+/* Enhanced voice mode shimmer effect - text-only shimmer like message window */
+.voice-status-text.shimmer-text {
+    color: white;
+    font-weight: 600;
+    font-size: 20px;
+    padding: 8px 12px;
+    text-align: center;
+    display: inline-block;
+    position: relative;
+    white-space: nowrap;
+    width: 100%;
+    background: linear-gradient(90deg, 
+        white 0%, 
+        white 35%, 
+        #404040 50%, 
+        white 65%, 
+        white 100%);
+    background-size: 200% 100%;
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shimmer 1.5s infinite linear;
+}
+
+/* Voice mode buttons - consistent styling */
+.voice-continue-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    background-color: #0076d3;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    margin-bottom: 12px;
+    width: 180px;
+    height: 40px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    white-space: nowrap;
+}
+
+.voice-continue-button:hover {
+    background-color: #0062b0;
+}
+
+.voice-continue-button lightning-icon {
+    --sds-c-icon-color-foreground-default: white;
+}
+
+.voice-exit-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    background-color: #e53935;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    width: 180px;
+    height: 40px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.voice-exit-button:hover {
+    background-color: #c62828;
+}
+
+.voice-exit-button lightning-icon {
+    --sds-c-icon-color-foreground-default: white;
+}
+
+/* Dark mode styling for voice continue button */
+.dark-mode .voice-continue-button {
+    background-color: #3182ce;
+}
+
+.dark-mode .voice-continue-button:hover {
+    background-color: #2c5282;
+}
+
+/* Thinking process dropdown styling */
+.thinking-process-container {
+    margin-top: 6px;
+    font-size: 12px;
+}
+
+.thinking-process-toggle {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    color: #333;
+    font-weight: 500;
+    font-size: 12px;
+    margin-top: 5px;
+}
+
+.thinking-process-toggle:hover {
+    color: #000;
+}
+
+.thinking-toggle-icon {
+    margin-right: 4px;
+    transition: transform 0.2s ease;
+}
+
+.thinking-toggle-icon.expanded {
+    transform: rotate(90deg);
+}
+
+.thinking-process-content {
+    display: none;
+    padding: 8px;
+    margin-top: 4px;
+    background-color: #f5f5f5;
+    border-radius: 8px;
+    color: #000;
+    font-size: 12px;
+    line-height: 1.4;
+    white-space: pre-wrap;
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid #e0e0e0;
+}
+
+.thinking-process-content.expanded {
+    display: block;
+}
+
+/* Dark mode styling for thinking process */
+.dark-mode .thinking-process-toggle {
+    color: #aaa;
+}
+
+.dark-mode .thinking-process-toggle:hover {
+    color: #ddd;
+}
+
+.dark-mode .thinking-process-content {
+    background-color: #2d3748;
+    color: #ddd;
+    border: 1px solid #4a5568;
+}
+
+/* Make sure the thinking icon is visible in dark mode */
+.dark-mode .thinking-toggle-icon {
+    --sds-c-icon-color-foreground-default: #aaa;
+}
+
+.dark-mode .thinking-toggle-icon.expanded {
+    --sds-c-icon-color-foreground-default: #ddd;
+}
+
+/* Media queries for responsiveness */
+@media (max-width: 768px) {
+    .chat-window {
+        width: 100%;
+        height: 100%;
+        bottom: 0;
+        right: 0;
+        border-radius: 0;
+    }
+    
+    .chat-header {
+        border-radius: 0;
+    }
+}
+
+/* Expanded chat window */
+.chat-window.expanded {
+    width: 100vw !important;
+    height: 100vh !important;
+    max-width: 100vw !important;
+    max-height: 100vh !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    border-radius: 0 !important;
+    z-index: 9999 !important;
+}
+
+.chat-window.expanded .chat-header {
+    border-radius: 0 !important;
+}
+
+/* Equal margins in expanded mode */
+.chat-window.expanded .chat-messages {
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+    padding-top: 35px !important;
+}
+
+.chat-window.expanded .user-message {
+    margin-right: 8px !important;
+}
+
+.chat-window.expanded .bot-message {
+    margin-left: 8px !important;
+}
+
+/* Fix shimmer animation for correct left-to-right movement */
+@keyframes shimmer {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: 0% 0;
+    }
+}
+
+@-webkit-keyframes shimmer {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: 0% 0;
+    }
+}
+
+@-moz-keyframes shimmer {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: 0% 0;
+    }
+}
+
+/* Fix shimmer text so it doesn't disappear */
+.message.bot-message.typing.shimmer-text p {
+    color: #666; /* Base color for the text so it doesn't disappear */
+    background: linear-gradient(90deg, 
+        #666 0%, 
+        #666 35%, 
+        #ffffff 50%, 
+        #666 65%, 
+        #666 100%);
+    background-size: 200% 100%;
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: #666; /* Non-transparent base color */
+    animation: shimmer 1.8s infinite linear;
+    background-repeat: no-repeat;
+    background-position: 200% 0;
+    text-align: left;
+    display: inline-block;
+    font-style: italic;
+    font-weight: 500;
+    margin-top: 3px; /* Bring thinking text up slightly */
+    position: relative;
+}
+
+/* Add overlay to create shimmer effect while keeping text visible */
+.message.bot-message.typing.shimmer-text p::after {
+    content: attr(data-text); /* Will be set dynamically to match the text */
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        transparent 35%, 
+        rgba(255, 255, 255, 0.8) 50%, 
+        transparent 65%, 
+        transparent 100%);
+    background-size: 200% 100%;
+    background-position: 200% 0;
+    animation: shimmer 1.8s infinite linear;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    -webkit-background-clip: text;
+    z-index: 1;
+}
+
+/* Ensure dark mode shimmer text uses same animation parameters */
+.dark-mode .message.bot-message.typing.shimmer-text p {
+    color: #aaa;
+    -webkit-text-fill-color: #aaa;
+    background: linear-gradient(90deg, 
+        #aaa 0%, 
+        #aaa 35%, 
+        #ffffff 50%, 
+        #aaa 65%, 
+        #aaa 100%);
+    background-size: 200% 100%;
+    background-clip: text;
+    -webkit-background-clip: text;
+    animation: shimmer 1.8s infinite linear;
+    background-repeat: no-repeat;
+    background-position: 200% 0;
+}
+
+.dark-mode .message.bot-message.typing.shimmer-text p::after {
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        transparent 35%, 
+        rgba(255, 255, 255, 0.8) 50%, 
+        transparent 65%, 
+        transparent 100%);
+    background-size: 200% 100%;
+    background-position: 200% 0;
+    animation: shimmer 1.8s infinite linear;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    -webkit-background-clip: text;
+}
+
+/* Voice mode shimmer to match */
+.voice-status-text.shimmer-text::after {
+    animation: shimmer 1.8s infinite linear;
+    background-position: 200% 0;
+}
+
+/* Ensure agent messages are BLACK in light mode */
+.bot-message .message-content p,
+.bot-message .message-content div {
+    color: #000 !important;
+}
+
+/* Ensure agent messages are WHITE in dark mode */
+.dark-mode .bot-message .message-content p,
+.dark-mode .bot-message .message-content div {
+    color: #f0f0f0 !important;
+}
+
+/* Typing cursor for typewriter effect */
+.typing-cursor {
+    display: inline-block;
+    width: 3px;
+    height: 18px;
+    background: currentColor;
+    margin-left: 2px;
+    animation: typing-bounce 0.8s infinite;
+    position: relative;
+    top: 3px;
+}
+
+.dark-mode .typing-cursor {
+    background: white;
+}
+
+@keyframes typing-bounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-4px);
+    }
+}
+
+/* Dark mode styling for hyperlinks */
+.dark-mode .bot-message .message-content a {
+    color: #63b3ed;
+}

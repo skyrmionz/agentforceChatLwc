@@ -1,0 +1,164 @@
+<template>
+    <!-- Messenger Chat Component -->
+    <div class="messenger-chat-container" data-state={componentState}>
+        <!-- Chat Bubble (initial state) -->
+        <div if:true={showChatBubble} class="chat-bubble" onclick={handleChatBubbleClick}>
+            <div class="bubble-icon">
+                <lightning-icon icon-name="utility:agent_astro" alternative-text="agent_astro" size="small" title="agent_astro"></lightning-icon>
+            </div>
+        </div>
+        
+        <!-- Main Chat Window -->
+        <div if:true={showChatWindow} class={chatWindowClasses}>
+            <!-- Chat Header -->
+            <div class="chat-header" onmousedown={handleHeaderMouseDown} ontouchstart={handleHeaderMouseDown}>
+                <div class="chat-title">
+                    <div class="header-title">{agentName}</div>
+                </div>
+                <div class="header-actions">
+                    <!-- Options menu toggle (three dots) -->
+                    <button class="action-button options-toggle" onclick={toggleOptionsMenu}>
+                        <lightning-icon icon-name="utility:threedots" size="x-small" alternative-text="Options" variant="inverse"></lightning-icon>
+                    </button>
+                    <!-- End Chat button -->
+                    <button class="action-button" onclick={showEndChatConfirmation}>
+                        <lightning-icon icon-name="utility:close" size="x-small" alternative-text="End chat" variant="inverse"></lightning-icon>
+                    </button>
+                    <!-- Options Menu -->
+                    <template if:true={showOptionsMenu}>
+                        <div class="options-menu">
+                            <ul>
+                                <li if:true={showVoiceModeOption} onclick={handleToggleVoiceMode}>
+                                    <lightning-icon icon-name={voiceIcon} size="x-small"></lightning-icon>
+                                    <span>{voiceMenuText}</span>
+                                </li>
+                                <li onclick={handleToggleTheme}>
+                                    <lightning-icon icon-name={themeIcon} size="x-small"></lightning-icon>
+                                    <span>{themeMenuText}</span>
+                                </li>
+                                <li onclick={handleToggleExpand}>
+                                    <lightning-icon icon-name={expandIcon} size="x-small"></lightning-icon>
+                                    <span>{expandMenuText}</span>
+                                </li>
+                                <li onclick={handleMinimizeToBubble}>
+                                    <lightning-icon icon-name="utility:minimize_window" size="x-small"></lightning-icon>
+                                    <span>Minimize to Bubble</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </template>
+                </div>
+            </div>
+            
+            <!-- Chat Message Container -->
+            <div class="chat-messages">
+                <template for:each={formattedMessages} for:item="message">
+                    <div key={message.id} class={message.cssClass} data-id={message.id}>
+                        <!-- For agent messages, show the icon and then the message content -->
+                        <template if:true={message.isAgentMessage}>
+                            <div class="bot-message-container">
+                                <div class="bot-icon-container">
+                                    <lightning-icon icon-name="utility:agent_astro" alternative-text="agent_astro" size="small" title="agent_astro"></lightning-icon>
+                                </div>
+                                <div class="message-content">
+                                    <!-- Show text directly for typing messages -->
+                                    <template if:true={message.isTypingMessage}>
+                                        <p data-text={message.text}>{message.text}</p>
+                                    </template>
+                                    <!-- For messages with HTML content -->
+                                    <template if:false={message.isTypingMessage}>
+                                        <template if:true={message.rawHtml}>
+                                            <div lwc:dom="manual" data-id={message.id} class="lwc-manual-render"></div>
+                                        </template>
+                                        <template if:false={message.rawHtml}>
+                                            <p>{message.text}</p>
+                                        </template>
+                                    </template>
+                                    <!-- Thinking process dropdown -->
+                                    <template if:true={message.hasThinkingProcess}>
+                                        <div class="thinking-process-container">
+                                            <div class="thinking-process-toggle" onclick={toggleThinkingProcess} data-id={message.id}>
+                                                <lightning-icon icon-name="utility:chevronright" size="xx-small" class="thinking-toggle-icon"></lightning-icon>
+                                                <span>My thought process...</span>
+                                            </div>
+                                            <div class="thinking-process-content" data-id={message.id}>
+                                                <p>{message.thinkingProcess}</p>
+                                            </div>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                        </template>
+                        <!-- For non-agent (user) messages -->
+                        <template if:false={message.isAgentMessage}>
+                            <div class="message-content">
+                                <p>{message.text}</p>
+                            </div>
+                        </template>
+                        <span class="timestamp">{message.timestamp}</span>
+                    </div>
+                </template>            
+            </div>
+            
+            <!-- Voice Mode Overlay -->
+            <div if:true={isVoiceMode} class="voice-mode-overlay">
+                <div class="voice-visualizer-container">
+                    <div class={voiceStatusClass} data-text={voiceStatusText}>{voiceStatusText}</div>
+                    <div class="voice-visualizer">
+                        <div class="visualizer-bar"></div>
+                        <div class="visualizer-bar"></div>
+                        <div class="visualizer-bar"></div>
+                        <div class="visualizer-bar"></div>
+                        <div class="visualizer-bar"></div>
+                        <div class="visualizer-bar"></div>
+                        <div class="visualizer-bar"></div>
+                    </div>
+                    <div if:true={isListening} class="voice-instructions">
+                        Speak now...
+                    </div>
+                    <div if:true={isSpeaking} class="voice-instructions">
+                        Agent is speaking...
+                    </div>
+                    <button if:true={isSpeaking} onclick={handleContinueSpeaking} class="voice-continue-button">
+                        <lightning-icon icon-name="utility:unmuted" size="small"></lightning-icon>
+                        Continue Speaking
+                    </button>
+                    <button onclick={toggleVoiceInput} class="voice-exit-button">
+                        <lightning-icon icon-name="utility:close" size="small"></lightning-icon>
+                        Exit Voice Mode
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Chat Input Container -->
+            <div class="chat-input">
+                <div class="input-container">
+                    <textarea placeholder="Send a Message to Agentforce" onkeydown={handleKeyPress} onkeyup={handleMessageChange} disabled={isInputDisabled} class="message-textarea"></textarea>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Chat Ended Screen -->
+        <template if:true={chatEnded}>
+            <div class={chatEndedClasses}>
+                <h2>Chat ended</h2>
+                <p>Thank you for using our chat service.</p>
+                <lightning-button variant="brand" label="Start New Chat" onclick={startNewChat}></lightning-button>
+            </div>
+        </template>
+        
+        <!-- End Chat Confirmation Modal -->
+        <template if:true={showEndChatModal}>
+            <div class="modal-backdrop">
+                <div class="modal-content">
+                    <div class="modal-title">End Chat</div>
+                    <p>Are you sure you want to end this chat session?</p>
+                    <div class="modal-actions">
+                        <button class="modal-button cancel-button" onclick={cancelEndChat}>Cancel</button>
+                        <button class="modal-button confirm-button" onclick={endChat}>End Chat</button>
+                    </div>
+                </div>
+            </div>
+        </template>
+    </div>
+</template>
