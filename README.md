@@ -145,7 +145,7 @@ A Lightning Web Component that integrates with Salesforce's Agentforce API to pr
 1. Navigate to Setup → Remote Site Settings → New Remote Site
 2. Create a remote site for the Agentforce API:
    - Remote Site Name: `AgentforceAPI`
-   - Remote Site URL: Your Salesforce org URL (same as Named Credential)
+   - Remote Site URL: Your Salesforce org URL
    - Active: Checked
 3. Create another remote site for Murf.ai (if using TTS):
    - Remote Site Name: `MurfAPI`
