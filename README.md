@@ -78,6 +78,7 @@ In your terminal, (in Code Builder, click into the 3 lines on top left corner â†
 
 1. Create a Flex Template Prompt called "HTML Stylize", with one input `Free Text` field named "Answer"
 2. Use this prompt here:
+   
    "Stylize the Agent's answer: "{!$Input:Answer}" with HTML. Use the following guideline:
 
    Paragraphs for regular sentences: Use the `<p>` for paragraphs of regular text.
