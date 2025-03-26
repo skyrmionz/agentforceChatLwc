@@ -224,9 +224,7 @@ You can customize the appearance and behavior of the chat widget by:
 
 ## Looking Forward
 - Planning on adding multi-modal image text extraction capabilities to Agent next
-
-## Looking Forward
-- Planning on adding multi-modal image text extraction capabilities to Agent next
+- Going to make this a deployable LWC
 
 ## License
 
