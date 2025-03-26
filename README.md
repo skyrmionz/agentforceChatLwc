@@ -82,7 +82,7 @@ A Lightning Web Component that integrates with Salesforce's Agentforce API to pr
    - "Always include in your final response your thought process of how you found the answer to the user's question. Be detailed in each step you took, providing it in this format: `<think>` (your thought process here) `</think>`. 
    
    Put it above the HTML stylized text you provide back."
-   - All of your replies must be HTML stylized.
+   - "All of your replies must be HTML stylized."
 
 6. Save and Activate your Agent
 7. Navigate back outside the Agent Builder to copy the Agent ID (it will look like `0XxHu000000l1BHKAY`)
@@ -95,26 +95,50 @@ A Lightning Web Component that integrates with Salesforce's Agentforce API to pr
    - API Name: `Agentforce_API`
    - Contact Email: Your email
 3. Enable OAuth Settings:
-   - Enable OAuth Settings: Checked
-   - Callback URL: `https://your-domain.my.salesforce.com/services/authcallback/Agentforce_API`
+   - `Enable OAuth Settings`: Checked
+   - Callback URL: `https://login.salesforce.com`
    - Selected OAuth Scopes:
-     - Access and manage your data (api)
-     - Perform requests on your behalf at any time (refresh_token, offline_access)
+     - Access chatbot services (chatbot_api)
+     - Access the Salesforce API Platform (sfap_api)
+     - Manage user data via APIs (api)
+     - Perform requests at any time (refresh_token, offline_access)
+4. `Enable Client Credentials Flow`: Checked
+5. `Issue JSON Web Token (JWT)-based access tokens for named users`: Checked
 4. Save the connected app
-5. Once saved, note the Consumer Key and Consumer Secret
+5. Once saved, go and view the Connected App
+   - Press Manage Consumer Details:
+   - Retrieve the and save it for later:
+      - Consumer Key
+      - Consumer Secret
 
-### Step 4: Configure Named Credential
+### Step 4: Configure Named Credentials
 
-1. Navigate to Setup → Named Credentials → New Named Credential
+## Step 4.1: Configure External Credentials
+1. Navigate to Setup → Named Credentials → External Credentials Tab → New
+2. Fill in the details:
+   - Label: `AgentforceAPI`
+   - Name:  `AgentforceAPI`
+   - Authentication Protocol: `OAuth 2.0`
+   - Authentication Flow Type: `Client Credentials with Client Secret Flow`
+   - Identity Provider URL: `https://your-domain.my.salesforce.com/services/oauth2/token`
+3. Save the External Credential
+4. Navigate into the External Credential
+5. Scroll down and create a new `Principal`
+   - Parameter Name: `NamedPrincipal`
+   - Sequence Number: `1`
+   - Client ID: (The Consumer Key from your Connected App)
+   - Client Secret: (The Consumer Secret from your Connected App)
+   - Save
+
+##Step 4.2: Configure Named Credentials
+1. Navigate back to Named Credentials → External Credentials Tab → New
 2. Fill in the details:
    - Label: `AgentforceAPI`
    - Name: `AgentforceAPI`
-   - URL: Use your Salesforce org URL (e.g., `https://your-org-name.my.salesforce.com`)
-   - Identity Type: `Named Principal`
-   - Authentication Protocol: `OAuth 2.0`
-   - Authentication Provider: Create a new one for Salesforce (or use existing)
-   - Scope: `api refresh_token`
-   - Start Authentication Flow on Save: Checked
+   - URL: `https://api.salesforce.com/einstein/ai-agent/v1`
+   - `Enabled for Callouts` toggled on
+   - External Credential: `AgentforceAPI` (the one you just created)
+   - `Generate Authorization Header` checked
 3. Save the Named Credential
 
 ### Step 5: Set Up Remote Site Settings
@@ -132,11 +156,7 @@ A Lightning Web Component that integrates with Salesforce's Agentforce API to pr
    - Trusted Site Name: `MurfAudioPlayback`
    - Trusted Site URL: `https://murf.ai`
    - Active: Checked
-4. Create another trusted site for Murf.ai Audio Playback (if using TTS):
-   - Trusted Site Name: `MurfAudioPlayback`
-   - Trusted Site URL: `https://murf.ai`
-   - Active: Checked
-4. Save the remote site settings
+5. Save the remote site settings
 
 ### Step 6: Set Up CSP Trusted Sites
 
@@ -157,12 +177,6 @@ A Lightning Web Component that integrates with Salesforce's Agentforce API to pr
    - Active: Checked
    - Context: Allow all contexts
 5. Save the trusted sites
-4. Create another trusted site for Murf.ai Audio Playback (if using TTS):
-   - Trusted Site Name: `MurfAudioPlayback`
-   - Trusted Site URL: `https://murf.ai`
-   - Active: Checked
-   - Context: Allow all contexts
-5. Save the trusted sites
 
 ### Step 7: Set Up Experience Cloud Site
 
@@ -170,13 +184,12 @@ A Lightning Web Component that integrates with Salesforce's Agentforce API to pr
 2. Create a new site or select an existing one
 3. Build the site using the Lightning Web Runtime or Aura framework
 4. In the Experience Builder:
-   - Drag the Agentforce Messenger Chat component onto your page
+   - Drag the Agentforce Messenger Chat component onto your page (sometimes you may need to refresh multiple times)
    - Configure the component properties:
      - Agent Name: Display name for your agent
      - Agent ID: The ID you copied from Agentforce
      - Murf API Key: Your Murf.ai API key (if using text-to-speech)
      - Default Dark Mode: Choose your preference
-     - Allow Voice Mode: Enable if using voice interaction
 5. Save and publish your site
 
 ### Step 8: Configure Experience Cloud CSP
@@ -186,7 +199,7 @@ A Lightning Web Component that integrates with Salesforce's Agentforce API to pr
    - Your Salesforce org domain
    - `https://api.murf.ai` (if using TTS)
    - `https://murf.ai`
-   - `https://murf.ai`
+3. Save and publish your site
 
 ### Step 9: Test the Integration
 
@@ -200,7 +213,7 @@ A Lightning Web Component that integrates with Salesforce's Agentforce API to pr
 - If the chat fails to initialize, check your Remote Site Settings and Named Credential configuration
 - If TTS is not working, verify your Murf.ai API key is correctly entered in the component configuration
 - Check the browser console for JavaScript errors
-- Review the Apex debug logs for server-side errors
+- Review the Apex debug logs for server-side errors in Developer Console
 
 ## Customization
 
