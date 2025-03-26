@@ -52,6 +52,9 @@ export default class MessengerChat extends LightningElement {
     lastY = 0;
     isFirstThinkingMessage = true;
 
+    // Track if chat was minimized vs. ended
+    @track wasMinimized = false;
+
     connectedCallback() {
         // Apply dark mode based on user preference or defaultDarkMode setting
         try {
@@ -196,25 +199,33 @@ export default class MessengerChat extends LightningElement {
         this.showChatBubble = false;
         this.showChatWindow = true;
         
-        // Clear previous messages and reset state when reopening chat
-        this.messages = [];
-        this.isFirstThinkingMessage = true;
-        this.welcomeMessageAdded = false;
-        
-        // Only reinitialize if needed
-        if (!this.isInitialized || !this.sessionId) {
-            // Reset session ID to ensure a fresh chat
-            this.sessionId = null;
-            this.isInitialized = false;
-            this.initializeAgentforce();
+        // If the chat was minimized (not ended), preserve the conversation
+        if (this.wasMinimized) {
+            console.log('Restoring minimized chat');
+            this.wasMinimized = false;
         } else {
-            // If already initialized but reopening the chat, send a greeting
-            setTimeout(() => {
-                if (!this.welcomeMessageAdded) {
-                    this.getAgentResponse('Hello');
-                    this.welcomeMessageAdded = true;
-                }
-            }, 300);
+            // Only clear and reinitialize if this wasn't a minimized chat
+            console.log('Starting new chat session');
+            // Clear previous messages and reset state when reopening chat
+            this.messages = [];
+            this.isFirstThinkingMessage = true;
+            this.welcomeMessageAdded = false;
+            
+            // Only reinitialize if needed
+            if (!this.isInitialized || !this.sessionId) {
+                // Reset session ID to ensure a fresh chat
+                this.sessionId = null;
+                this.isInitialized = false;
+                this.initializeAgentforce();
+            } else {
+                // If already initialized but reopening the chat, send a greeting
+                setTimeout(() => {
+                    if (!this.welcomeMessageAdded) {
+                        this.getAgentResponse('Hello');
+                        this.welcomeMessageAdded = true;
+                    }
+                }, 300);
+            }
         }
         
         this.scrollToBottom();
@@ -331,6 +342,9 @@ export default class MessengerChat extends LightningElement {
         this.showChatWindow = false;
         this.showChatBubble = true;
         this.showOptionsMenu = false;
+        
+        // Set the flag indicating chat was minimized, not ended
+        this.wasMinimized = true;
         
         // Stop any playing audio when minimizing
         this.stopAudioPlayback();
@@ -1073,6 +1087,9 @@ export default class MessengerChat extends LightningElement {
         }
         
         this.isSessionEnding = true;
+        
+        // Reset minimized flag since we're properly ending the chat
+        this.wasMinimized = false;
         
         // Add a goodbye message
         this.messages = [...this.messages, {
