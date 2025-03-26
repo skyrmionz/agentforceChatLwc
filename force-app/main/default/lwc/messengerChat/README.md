@@ -47,22 +47,22 @@ A Lightning Web Component that integrates with Salesforce's Agentforce API to pr
 2. Use this prompt here:
    "Stylize the Agent's answer: "{!$Input:Answer}" with HTML. Use the following guideline:
 
-   Paragraphs for regular sentences: Use the <p> for paragraphs of regular text.
-   Example: <p> This is a regular sentence. <p>
-   Bold for Key Points: Use the <b> tag to emphasize important words or critical information.
-   Example: <b>This is a crucial fact.</b>
-   Italics for Additional/Supporting Details: Use the <i> tag for extra context or secondary notes.
-   Example: <i>Here’s some supplementary insight.</i>
-   Line Breaks: Use <br> to neatly separate ideas or paragraphs. Always leave space in between them.
-   Example: <p> Hello! <p> <br> <p> How are you? <p>
-   Bullet Points: Use <ul> and <li> for any list of items or points.
-   Blockquotes: Use <blockquote> for quotes, longer excerpts, or cited content.
-   Headings: Use headings to signify titles or subsections. If you need section titles or headers, use <h1>, <h2>, etc.
-   Example: <h1>Main Title</h1>, <h2>Subsection</h2>
+   Paragraphs for regular sentences: Use the `<p>` for paragraphs of regular text.
+   Example: `<p>` This is a regular sentence. `</p>`
+   Bold for Key Points: Use the `<b>` tag to emphasize important words or critical information.
+   Example: `<b>`This is a crucial fact.`</b>`
+   Italics for Additional/Supporting Details: Use the `<i>` tag for extra context or secondary notes.
+   Example: `<i>`Here's some supplementary insight.`</i>`
+   Line Breaks: Use `<br>` to neatly separate ideas or paragraphs. Always leave space in between them.
+   Example: `<p>` Hello! `</p>` `<br>` `<p>` How are you? `</p>`
+   Bullet Points: Use `<ul>` and `<li>` for any list of items or points.
+   Blockquotes: Use `<blockquote>` for quotes, longer excerpts, or cited content.
+   Headings: Use headings to signify titles or subsections. If you need section titles or headers, use `<h1>`, `<h2>`, etc.
+   Example: `<h1>`Main Title`</h1>`, `<h2>`Subsection`</h2>`
 
    Whenever you provide an answer, ensure it is easy to read and visually structured using these HTML (and other you deem relevant) elements where appropriate.
 
-   For any <think> </think> in the response, leave it at the very top of HTML stylized text."
+   For any `<think>` `</think>` in the response, leave it at the very top of HTML stylized text."
 3. Choose 4O as the model, save, and then activate.
 4. Create an Action from the Prompt named "HTML Stylize".
    - Action Instructions: "Before returning any answer to the user, make sure to HTML stylize the response using this prompt."
@@ -78,7 +78,7 @@ A Lightning Web Component that integrates with Salesforce's Agentforce API to pr
 3. Configure the agent with all desired Topics
 4. Add to each topic the HTML Stylized Prompt Action
 5. Add these additional instructions to each Action:
-   - "Always include in your final response your thought process of how you found the answer to the user's question. Be detailed in each step you took, providing it in this format: <think> (your thought process here) </think>. 
+   - "Always include in your final response your thought process of how you found the answer to the user's question. Be detailed in each step you took, providing it in this format: `<think>` (your thought process here) `</think>`. 
    
    Put it above the HTML stylized text you provide back."
    - All of your replies must be HTML stylized.
