@@ -73,7 +73,7 @@ A Lightning Web Component that integrates with Salesforce's Agentforce API to pr
 
 ## Step 2.2: Create an HTML Stylization Prompt Action
 
-1. Navigate to Einstein → Agents in your Salesforce org
+1. Navigate to Agents in your Salesforce org
 2. Create a new agent or select an existing one
 3. Configure the agent with all desired Topics
 4. Add to each topic the HTML Stylized Prompt Action
