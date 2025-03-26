@@ -43,7 +43,7 @@ A Lightning Web Component that integrates with Salesforce's Agentforce API to pr
 
 ## Step 2.1: Create an HTML Stylization Prompt Action
 
-1. Create a Flex Template Prompt called "HTML Stylize", with one input text field named "Answer"
+1. Create a Flex Template Prompt called "HTML Stylize", with one input `Free Text` field named "Answer"
 2. Use this prompt here:
    "Stylize the Agent's answer: "{!$Input:Answer}" with HTML. Use the following guideline:
 
@@ -101,10 +101,11 @@ A Lightning Web Component that integrates with Salesforce's Agentforce API to pr
      - Access the Salesforce API Platform (sfap_api)
      - Manage user data via APIs (api)
      - Perform requests at any time (refresh_token, offline_access)
-4. `Enable Client Credentials Flow`: Checked
-5. `Issue JSON Web Token (JWT)-based access tokens for named users`: Checked
-4. Save the connected app
-5. Once saved, go and view the Connected App
+4. Uncheck other boxes, only check below:
+5. `Enable Client Credentials Flow`: Checked
+6. `Issue JSON Web Token (JWT)-based access tokens for named users`: Checked
+7. Save the connected app
+8. Once saved, go and view the Connected App
    - Press Manage Consumer Details:
    - Retrieve the and save it for later:
       - Consumer Key
