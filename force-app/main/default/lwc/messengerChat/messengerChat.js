@@ -131,7 +131,7 @@ export default class MessengerChat extends LightningElement {
         const maxRetries = 2;
 
         const performInitialization = () => {
-            initializeAgentSession({ agentId: this.agentId, murfApiKey: this.murfApiKey })
+            initializeAgentSession({ agentId: this.agentId })
                 .then(result => {
                     clearTimeout(initializationTimeout);
                     console.log('Session initialized successfully:', result);
