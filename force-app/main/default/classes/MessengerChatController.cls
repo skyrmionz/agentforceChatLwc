@@ -1,6 +1,11 @@
 public without sharing class MessengerChatController {
     private static final String BASE_URL = 'callout:AgentforceAPI';
 
+    @AuraEnabled(cacheable=true)
+    public static String getOrgDomain() {
+        return URL.getOrgDomainUrl().toExternalForm();
+    }
+
     @AuraEnabled(cacheable=false)
     public static String initializeAgentSession(String agentId) {
         if (String.isBlank(agentId)) {
