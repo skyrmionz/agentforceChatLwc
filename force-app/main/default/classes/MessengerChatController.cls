@@ -31,12 +31,8 @@ public without sharing class MessengerChatController {
             System.debug('Request payload: ' + requestBody);
             req.setBody(requestBody);
 
-            // Log request headers for troubleshooting
-            Map<String, String> requestHeaders = new Map<String, String>();
-            for (String header : req.getHeaderKeys()) {
-                requestHeaders.put(header, req.getHeader(header));
-            }
-            System.debug('Request headers: ' + JSON.serialize(requestHeaders));
+            // Log content type for troubleshooting
+            System.debug('Content-Type: ' + req.getHeader('Content-Type'));
 
             HttpResponse res = new Http().send(req);
             System.debug('Response status: ' + res.getStatusCode());
@@ -50,13 +46,6 @@ public without sharing class MessengerChatController {
                 }
                 return sessionId;
             }
-            
-            // Log all response headers
-            Map<String, String> responseHeaders = new Map<String, String>();
-            for (String header : res.getHeaderKeys()) {
-                responseHeaders.put(header, res.getHeader(header));
-            }
-            System.debug('Response headers: ' + JSON.serialize(responseHeaders));
             
             // Create a detailed error message
             String errorDetails = 'Status: ' + res.getStatusCode() + 
