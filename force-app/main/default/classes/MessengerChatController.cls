@@ -12,29 +12,63 @@ public without sharing class MessengerChatController {
             throw new AuraHandledException('Agent ID cannot be blank');
         }
 
-        HttpRequest req = new HttpRequest();
-        req.setEndpoint(BASE_URL + '/agents/' + agentId + '/sessions');
-        req.setMethod('POST');
-        req.setHeader('Content-Type','application/json');
+        try {
+            String endpoint = BASE_URL + '/agents/' + agentId + '/sessions';
+            System.debug('Calling API endpoint: ' + endpoint);
+            
+            HttpRequest req = new HttpRequest();
+            req.setEndpoint(endpoint);
+            req.setMethod('POST');
+            req.setHeader('Content-Type','application/json');
 
-        Map<String, Object> payload = new Map<String, Object>{
-            'externalSessionKey'    => generateUUID(),
-            'instanceConfig'        => new Map<String, Object>{ 'endpoint' => URL.getOrgDomainUrl().toExternalForm() },
-            'streamingCapabilities' => new Map<String, Object>{ 'chunkTypes' => new List<String>{ 'Text' } },
-            'bypassUser'            => true
-        };
-        req.setBody(JSON.serialize(payload));
+            Map<String, Object> payload = new Map<String, Object>{
+                'externalSessionKey'    => generateUUID(),
+                'instanceConfig'        => new Map<String, Object>{ 'endpoint' => URL.getOrgDomainUrl().toExternalForm() },
+                'streamingCapabilities' => new Map<String, Object>{ 'chunkTypes' => new List<String>{ 'Text' } },
+                'bypassUser'            => true
+            };
+            String requestBody = JSON.serialize(payload);
+            System.debug('Request payload: ' + requestBody);
+            req.setBody(requestBody);
 
-        HttpResponse res = new Http().send(req);
-        if (res.getStatusCode() == 200 || res.getStatusCode() == 201) {
-            Map<String, Object> result = (Map<String, Object>)JSON.deserializeUntyped(res.getBody());
-            String sessionId = (String)result.get('sessionId');
-            if (String.isBlank(sessionId)) {
-                throw new AuraHandledException('No sessionId returned');
+            // Log request headers for troubleshooting
+            Map<String, String> requestHeaders = new Map<String, String>();
+            for (String header : req.getHeaderKeys()) {
+                requestHeaders.put(header, req.getHeader(header));
             }
-            return sessionId;
+            System.debug('Request headers: ' + JSON.serialize(requestHeaders));
+
+            HttpResponse res = new Http().send(req);
+            System.debug('Response status: ' + res.getStatusCode());
+            System.debug('Response body: ' + res.getBody());
+            
+            if (res.getStatusCode() == 200 || res.getStatusCode() == 201) {
+                Map<String, Object> result = (Map<String, Object>)JSON.deserializeUntyped(res.getBody());
+                String sessionId = (String)result.get('sessionId');
+                if (String.isBlank(sessionId)) {
+                    throw new AuraHandledException('No sessionId returned');
+                }
+                return sessionId;
+            }
+            
+            // Log all response headers
+            Map<String, String> responseHeaders = new Map<String, String>();
+            for (String header : res.getHeaderKeys()) {
+                responseHeaders.put(header, res.getHeader(header));
+            }
+            System.debug('Response headers: ' + JSON.serialize(responseHeaders));
+            
+            // Create a detailed error message
+            String errorDetails = 'Status: ' + res.getStatusCode() + 
+                                  ', StatusText: ' + res.getStatus() + 
+                                  ', Body: ' + res.getBody();
+            System.debug('API call failed: ' + errorDetails);
+            
+            throw new AuraHandledException('Session init failed (' + res.getStatusCode() + '): ' + res.getBody());
+        } catch (Exception e) {
+            System.debug('Exception in initializeAgentSession: ' + e.getMessage() + ', Type: ' + e.getTypeName() + ', Line: ' + e.getLineNumber() + ', Stack: ' + e.getStackTraceString());
+            throw new AuraHandledException('Error initializing session: ' + e.getMessage());
         }
-        throw new AuraHandledException('Session init failed (' + res.getStatusCode() + '): ' + res.getBody());
     }
 
     @AuraEnabled(cacheable=false)

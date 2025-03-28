@@ -108,10 +108,24 @@ export default class MessengerChat extends LightningElement {
     // Agent Session Initialization
     // ------------------------------
     initializeAgentforce() {
-        if (this.isInitialized || !this.agentId) {
-            console.log('Skipping initialization – already initialized or missing agent ID');
+        if (this.isInitialized) {
+            console.log('Skipping initialization – already initialized');
             return;
         }
+        
+        if (!this.agentId) {
+            console.error('Missing Agent ID: Please configure an Agent ID in the Experience Builder component properties');
+            this.isTyping = true;
+            this.messages = [...this.messages, {
+                id: `msg_${Date.now()}`,
+                text: 'Error: Agent ID not configured. Please ask your administrator to configure an Agent ID in the component settings.',
+                sender: 'agent',
+                cssClass: 'message bot-message error-message',
+                timestamp: this.getTimestamp()
+            }];
+            return;
+        }
+        
         console.log('Initializing Agentforce session with agent ID:', this.agentId);
         this.isTyping = true;
         this.messages = [...this.messages, {
@@ -131,6 +145,11 @@ export default class MessengerChat extends LightningElement {
         const maxRetries = 2;
 
         const performInitialization = () => {
+            // Log configuration details
+            console.log('Configuration details:');
+            console.log('- Agent ID:', this.agentId);
+            console.log('- URL:', window.location.href);
+            
             initializeAgentSession({ agentId: this.agentId })
                 .then(result => {
                     clearTimeout(initializationTimeout);
@@ -159,8 +178,33 @@ export default class MessengerChat extends LightningElement {
                 })
                 .catch(error => {
                     clearTimeout(initializationTimeout);
+                    
+                    // Enhanced error logging
                     console.error('Error initializing Agentforce session:', error);
+                    
+                    // Log detailed error information
+                    if (error.body) {
+                        console.error('Error details:', {
+                            message: error.body.message,
+                            stackTrace: error.body.stackTrace,
+                            error: error.body.error,
+                            status: error.status,
+                            statusText: error.statusText
+                        });
+                    }
+                    
                     const errorMsg = this.getErrorMessage(error);
+                    console.error('Formatted error message:', errorMsg);
+                    
+                    // Show detailed error to the user in debug mode
+                    const userErrorMsg = 
+                        `Error connecting to Agentforce (${error.status || 'unknown status'}): ${errorMsg}\n\n` +
+                        `Additional troubleshooting:\n` +
+                        `1. Verify Remote Site Setting "AgentforceAPI" points to https://api.salesforce.com\n` +
+                        `2. Verify Named Credential "AgentforceAPI" is properly configured\n` +
+                        `3. Check Agent ID is valid: ${this.agentId}\n` +
+                        `4. Verify Connected App has proper OAuth scopes`;
+                    
                     if (retryCount < maxRetries) {
                         retryCount++;
                         console.log(`Retrying initialization (attempt ${retryCount} of ${maxRetries})...`);
@@ -168,8 +212,19 @@ export default class MessengerChat extends LightningElement {
                         setTimeout(performInitialization, 2000);
                     } else {
                         this.isTyping = false;
-                        this.updateInitializationMessage("I'm ready to help you with your questions.");
-                        this.isInitialized = true;
+                        // Show detailed error message after all retries fail
+                        this.updateInitializationMessage("Couldn't connect to Agentforce. Please contact your administrator.");
+                        
+                        // Add a detailed error message
+                        this.messages = [...this.messages, {
+                            id: `msg_${Date.now()}`,
+                            text: userErrorMsg,
+                            sender: 'agent',
+                            cssClass: 'message bot-message error-message',
+                            timestamp: this.getTimestamp()
+                        }];
+                        
+                        this.isInitialized = false;
                         console.error('All initialization attempts failed:', errorMsg);
                     }
                 });
@@ -1060,17 +1115,43 @@ export default class MessengerChat extends LightningElement {
     }
 
     getErrorMessage(error) {
-        let errorMsg = 'Unknown error';
-        try {
-            if (typeof error === 'string') return error;
-            if (error.body && error.body.message) return error.body.message;
-            if (error.message) return error.message;
-            if (typeof error === 'object') {
-                const errorStr = JSON.stringify(error);
-                if (errorStr && errorStr !== '{}') return errorStr;
+        if (!error) {
+            return 'Unknown error';
+        }
+        
+        // Capture as much error information as possible
+        console.log('Raw error object:', JSON.stringify(error));
+        
+        if (typeof error === 'string') {
+            return error;
+        }
+        
+        // Handle AuraHandledException and other Salesforce errors
+        if (error.body && error.body.message) {
+            return error.body.message;
+        }
+        
+        if (error.body && typeof error.body === 'string') {
+            try {
+                const parsed = JSON.parse(error.body);
+                if (parsed.message) {
+                    return parsed.message;
+                }
+            } catch (e) {
+                // If body isn't JSON, return it directly
+                return error.body;
             }
-        } catch (e) { console.error('Error parsing error object:', e); }
-        return errorMsg;
+        }
+        
+        if (error.message) {
+            return error.message;
+        }
+        
+        if (error.status) {
+            return `HTTP Error: ${error.status} ${error.statusText || ''}`;
+        }
+        
+        return 'Unknown error occurred';
     }
 
     endChat() {

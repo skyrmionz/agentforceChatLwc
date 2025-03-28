@@ -2,6 +2,6 @@
 <RemoteSiteSetting xmlns="http://soap.sforce.com/2006/04/metadata">
     <disableProtocolSecurity>false</disableProtocolSecurity>
     <isActive>true</isActive>
-    <url>https://REPLACE-WITH-YOUR-ORG-DOMAIN.my.salesforce.com</url>
+    <url>https://api.salesforce.com</url>
     <description>IMPORTANT: Replace this URL with your own org domain before deployment. Remote site setting for Agentforce API calls.</description>
 </RemoteSiteSetting> 
