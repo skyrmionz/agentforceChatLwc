@@ -173,7 +173,7 @@ In your terminal, (in Code Builder, click into the 3 lines on top left corner �
 
 1. Navigate to Setup → Remote Site Settings → New Remote Site (Check if these are already there first!)
 2. Create a remote site for the Agentforce API:
-   - Remote Site Name: `SalesforceAPI`
+   - Remote Site Name: `AgentforceAPI`
    - Remote Site URL: `https://api.salesforce.com`
    - Active: Checked
 3. Create a remote site for Salesforce Login:
