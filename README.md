@@ -23,7 +23,11 @@ A Lightning Web Component that integrates with Salesforce's Agentforce API to pr
 
 ## IMPORTANT: As I make edits to the main code for improvements (check the repo for new commits!), in your terminal, use these commands to pull the latest:
 
-First, pull the newest code:
+First, make sure you're in the LWC directory:
+```
+cd agentforceChatLwc
+``` 
+Next, pull the newest code:
 ```
 git pull
 ``` 
@@ -153,7 +157,7 @@ In your terminal, (in Code Builder, click into the 3 lines on top left corner â†
    - Select Issue JSON Web Token (JWT)-based access tokens. Leave the Token Timeout value as 30 minutes.
 12. Save
 
-### Step 4: Configure Agentforce Connected App
+### Step 4: Configure Agentforce to the Connected App
 
 
 ## Step 4.4: Assign Connected App to your Agent
