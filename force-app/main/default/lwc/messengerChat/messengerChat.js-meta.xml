@@ -28,6 +28,8 @@
             <property name="defaultDarkMode" type="Boolean" label="Default Dark Mode" description="Enable dark mode by default" />
             <property name="agentId" type="String" label="Agent ID" description="ID of the Agentforce agent" />
             <property name="murfApiKey" type="String" label="Murf API Key" description="API key for Murf.ai text-to-speech service" />
+            <property name="consumerKey" type="String" label="Consumer Key" default="" description="Consumer Key from your Connected App for Agentforce API authentication"/>
+            <property name="consumerSecret" type="String" label="Consumer Secret" default="" description="Consumer Secret from your Connected App for Agentforce API authentication"/>
         </targetConfig>
     </targetConfigs>
 </LightningComponentBundle> 

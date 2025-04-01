@@ -14,9 +14,11 @@ export default class MessengerChat extends LightningElement {
     @api welcomeMessage = 'Hello! How can I assist you today?';
     @api allowVoiceMode = false;
     @api position = 'bottom-right';
-    @api agentId = '0XxHu000000l1BHKAY'; // Replace with your actual Agentforce Agent ID
+    @api agentId = ''; // Replace with your actual Agentforce Agent ID
     @api headerText = 'Agentforce';
     @api murfApiKey = ''; // API key for Murf.ai TTS service
+    @api consumerKey = ''; // Consumer Key for Agentforce API auth
+    @api consumerSecret = ''; // Consumer Secret for Agentforce API auth
 
     // Reactive component state
     @track messages = [];
@@ -126,6 +128,19 @@ export default class MessengerChat extends LightningElement {
             return;
         }
         
+        if (!this.consumerKey || !this.consumerSecret) {
+            console.error('Missing authentication credentials: Please configure Consumer Key and Consumer Secret in the Experience Builder component properties');
+            this.isTyping = true;
+            this.messages = [...this.messages, {
+                id: `msg_${Date.now()}`,
+                text: 'Error: Authentication credentials not configured. Please ask your administrator to configure the Consumer Key and Consumer Secret in the component settings.',
+                sender: 'agent',
+                cssClass: 'message bot-message error-message',
+                timestamp: this.getTimestamp()
+            }];
+            return;
+        }
+        
         console.log('Initializing Agentforce session with agent ID:', this.agentId);
         this.isTyping = true;
         this.messages = [...this.messages, {
@@ -150,7 +165,11 @@ export default class MessengerChat extends LightningElement {
             console.log('- Agent ID:', this.agentId);
             console.log('- URL:', window.location.href);
             
-            initializeAgentSession({ agentId: this.agentId })
+            initializeAgentSession({ 
+                agentId: this.agentId,
+                consumerKey: this.consumerKey,
+                consumerSecret: this.consumerSecret
+            })
                 .then(result => {
                     clearTimeout(initializationTimeout);
                     console.log('Session initialized successfully:', result);
@@ -200,9 +219,9 @@ export default class MessengerChat extends LightningElement {
                     const userErrorMsg = 
                         `Error connecting to Agentforce (${error.status || 'unknown status'}): ${errorMsg}\n\n` +
                         `Additional troubleshooting:\n` +
-                        `1. Verify Remote Site Setting "AgentforceAPI" points to https://api.salesforce.com\n` +
-                        `2. Verify Named Credential "AgentforceAPI" is properly configured\n` +
-                        `3. Check Agent ID is valid: ${this.agentId}\n` +
+                        `1. Verify Remote Site Setting for "api.salesforce.com" and "login.salesforce.com"\n` +
+                        `2. Check Agent ID is valid: ${this.agentId}\n` +
+                        `3. Verify Consumer Key and Consumer Secret are correct\n` +
                         `4. Verify Connected App has proper OAuth scopes`;
                     
                     if (retryCount < maxRetries) {
@@ -587,7 +606,12 @@ export default class MessengerChat extends LightningElement {
         const maxRetries = 1;
 
         const getResponse = () => {
-            getAgentRecommendation({ sessionId: this.sessionId, message, murfApiKey: this.murfApiKey })
+            getAgentRecommendation({ 
+                sessionId: this.sessionId, 
+                message, 
+                consumerKey: this.consumerKey,
+                consumerSecret: this.consumerSecret
+            })
                 .then(response => {
                     console.log('Agent response received, length:', response ? response.length : 0);
                     
@@ -1185,7 +1209,11 @@ export default class MessengerChat extends LightningElement {
         
         // Call Apex to end the session
         if (this.sessionId) {
-            endAgentSession({ sessionId: this.sessionId })
+            endAgentSession({ 
+                sessionId: this.sessionId,
+                consumerKey: this.consumerKey,
+                consumerSecret: this.consumerSecret
+            })
                 .then(() => {
                     console.log('Session ended successfully');
                 })

@@ -138,15 +138,6 @@
             </div>
         </div>
         
-        <!-- Chat Ended Screen -->
-        <template if:true={chatEnded}>
-            <div class={chatEndedClasses}>
-                <h2>Chat ended</h2>
-                <p>Thank you for using our chat service.</p>
-                <lightning-button variant="brand" label="Start New Chat" onclick={startNewChat}></lightning-button>
-            </div>
-        </template>
-        
         <!-- End Chat Confirmation Modal -->
         <template if:true={showEndChatModal}>
             <div class="modal-backdrop">

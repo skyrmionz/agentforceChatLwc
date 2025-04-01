@@ -118,7 +118,7 @@ In your terminal, (in Code Builder, click into the 3 lines on top left corner �
    - "All of your replies must be HTML stylized."
 
 6. Save and Activate your Agent
-7. Navigate back outside the Agent Builder to copy the Agent ID (it will look like `0XxHu000000l1BHKAY`)
+7. Navigate back outside the Agent Builder to copy the Agent ID from the URL (it will look like `0XxHu000000l1BHKAY`)
 
 ### Step 3: Configure Connected App for API Access
 
@@ -150,43 +150,11 @@ In your terminal, (in Code Builder, click into the 3 lines on top left corner �
    - Permitted Users: `All users may self-authorize`
    - IP Relaxation: `Relax IP Restrictions`
    - Client Credentials Flow: (Choose your User)
+   - Select Issue JSON Web Token (JWT)-based access tokens. Leave the Token Timeout value as 30 minutes.
 12. Save
 
-### Step 4: Configure Named Credentials
+### Step 4: Configure Agentforce Connected App
 
-## Step 4.1: Configure External Credentials
-1. Navigate to Setup → Named Credentials → External Credentials Tab → New
-2. Fill in the details:
-   - Label: `AgentforceAPI`
-   - Name:  `AgentforceAPI`
-   - Authentication Protocol: `OAuth 2.0`
-   - Authentication Flow Type: `Client Credentials with Client Secret Flow`
-   - Identity Provider URL: `https://your-domain.my.salesforce.com/services/oauth2/token`
-3. Save the External Credential
-4. Navigate into the External Credential
-5. Scroll down and create a new `Principal`
-   - Parameter Name: `NamedPrincipal`
-   - Sequence Number: `1`
-   - Client ID: (The Consumer Key from your Connected App)
-   - Client Secret: (The Consumer Secret from your Connected App)
-   - Save
-
-## Step 4.2: Configure Named Credentials
-1. Navigate back to Named Credentials → Named Credentials Tab → New
-2. Fill in the details:
-   - Label: `AgentforceAPI`
-   - Name: `AgentforceAPI`
-   - URL: `https://api.salesforce.com/einstein/ai-agent/v1`
-   - `Enabled for Callouts` toggled on
-   - External Credential: `AgentforceAPI` (the one you just created)
-   - `Generate Authorization Header` checked
-3. Save the Named Credential
-
-## Step 4.3: Assign External Credentials to Messenger Chat Permission Set
-1. Navigate to Setup → Permission Sets → `Messenger Chat Permissions`
-2. Navigate to External Credential Principal Access
-3. Press Edit and select the name of the External Credential you just created
-4. Save and Close
 
 ## Step 4.4: Assign Connected App to your Agent
 1. Navigate to Agents and select the Agent you want to use
@@ -199,10 +167,14 @@ In your terminal, (in Code Builder, click into the 3 lines on top left corner �
 
 ### Step 5: Set Up Remote Site Settings
 
-1. Navigate to Setup → Remote Site Settings → New Remote Site
+1. Navigate to Setup → Remote Site Settings → New Remote Site (Check if these are already there first!)
 2. Create a remote site for the Agentforce API:
-   - Remote Site Name: `AgentforceAPI`
-   - Remote Site URL: Your Salesforce org URL
+   - Remote Site Name: `SalesforceAPI`
+   - Remote Site URL: `https://api.salesforce.com`
+   - Active: Checked
+3. Create a remote site for Salesforce Login:
+   - Remote Site Name: `LoginAPI`
+   - Remote Site URL: `https://login.salesforce.com`
    - Active: Checked
 3. Create another remote site for Murf.ai (if using TTS):
    - Remote Site Name: `MurfAPI`
@@ -219,7 +191,7 @@ In your terminal, (in Code Builder, click into the 3 lines on top left corner �
 1. Navigate to Setup → CSP Trusted Sites → New Trusted Site
 2. Create a trusted site for Agentforce API:
    - Trusted Site Name: `AgentforceAPI`
-   - Trusted Site URL: Your Salesforce org URL
+   - Trusted Site URL: `https://api.salesforce.com`
    - Active: Checked
    - Context: Allow all contexts
 3. Create another trusted site for Murf.ai (if using TTS):
@@ -243,7 +215,9 @@ In your terminal, (in Code Builder, click into the 3 lines on top left corner �
    - Drag the Agentforce Messenger Chat component onto your page (sometimes you may need to refresh multiple times)
    - Configure the component properties:
      - Agent Name: Display name for your agent
-     - Agent ID: The ID you copied from Agentforce
+     - Agent ID: The ID from your Agent's URL
+     - Consumer Key: Your Connected App's Consumer Key
+     - Consumer Secret: Your Connected App's Consumer Secret
      - Murf API Key: Your Murf.ai API key (if using text-to-speech)
      - Default Dark Mode: Choose your preference
 5. Save and publish your site
@@ -252,7 +226,7 @@ In your terminal, (in Code Builder, click into the 3 lines on top left corner �
 
 1. Navigate to Digital Experiences → All Sites → [Your Site] → Administration → Security & Privacy
 2. Under Content Security Policy (CSP), add the following domains to your CSP Trusted Sites:
-   - Your Salesforce org domain
+   - `https://api.salesforce.com`
    - `https://api.murf.ai` (if using TTS)
    - `https://murf.ai`
 3. Save and publish your site
@@ -280,6 +254,5 @@ You can customize the appearance and behavior of the chat widget by:
 3. Configuring component properties in Experience Builder
 
 ## Looking Forward
-- Planning on adding multi-modal image text extraction capabilities to Agent next
-- Going to make this a deployable LWC
-- Planning on adding more customization to LWC (choosing color, sizing)
+- Planning on adding multi-modal image text extraction capabilities with Gemini API
+- Planning on adding more customization to LWC (choosing color, sizing, etc.)
