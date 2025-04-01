@@ -109,12 +109,12 @@ In your terminal, (in Code Builder, click into the 3 lines on top left corner â†
    - Output "Prompt Response" Instructions: "This is the complete HTML stylized response to provide back to the user."
       - Show in Conversation
 
-## Step 2.2: Create an HTML Stylization Prompt Action (Continued)
+## Step 2.2: Add Actions and Instructions to your Agent
 
 1. Navigate to Agents in your Salesforce org
 2. Create a new agent or select an existing one
 3. Configure the agent with all desired Topics
-4. Add to each topic the HTML Stylized Prompt Action
+4. Add the HTML Stylized Prompt Action to EVERY Topic
 5. Add these additional instructions to each Topic:
    - "Always include in your final response your thought process of how you found the answer to the user's question. Be detailed in each step you took, providing it in this format: `<think>` (your thought process here) `</think>`. 
    
@@ -159,8 +159,6 @@ In your terminal, (in Code Builder, click into the 3 lines on top left corner â†
 
 ### Step 4: Configure Agentforce to the Connected App
 
-
-## Step 4.4: Assign Connected App to your Agent
 1. Navigate to Agents and select the Agent you want to use
 2. Navigate to the `Connections` tab
 3. Scroll down to Connections and press the `Add` button
