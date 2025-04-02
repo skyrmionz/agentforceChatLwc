@@ -22,6 +22,11 @@
             <property name="agentId" type="String" label="Agent ID" description="ID of the Agentforce agent" />
             <property name="headerText" type="String" label="Header Text" description="Text shown in the chat header" />
             <property name="murfApiKey" type="String" label="Murf API Key" description="API key for Murf.ai text-to-speech service" />
+            <property name="searchMode" type="Boolean" label="Search Mode" description="Enable search-like interface" default="false" />
+            <property name="searchModeWelcomeText" type="String" label="Search Mode Welcome Text" description="Welcome text shown above the search bar in search mode" default="How can Agentforce help?" />
+            <property name="gradientStartColor" type="String" label="Gradient Start Color" description="Start color for the search mode background gradient" default="#F0F7FF" />
+            <property name="gradientEndColor" type="String" label="Gradient End Color" description="End color for the search mode background gradient" default="#C8DCFF" />
+            <property name="themeColor" type="String" label="Theme Color" description="Color for the chat header and user messages" default="#0076d3" />
         </targetConfig>
         <targetConfig targets="lightningCommunity__Default">
             <property name="agentName" type="String" label="Agent Name" description="Name of the AI agent" />
@@ -30,6 +35,11 @@
             <property name="murfApiKey" type="String" label="Murf API Key" description="API key for Murf.ai text-to-speech service" />
             <property name="consumerKey" type="String" label="Consumer Key" default="" description="Consumer Key from your Connected App for Agentforce API authentication"/>
             <property name="consumerSecret" type="String" label="Consumer Secret" default="" description="Consumer Secret from your Connected App for Agentforce API authentication"/>
+            <property name="searchMode" type="Boolean" label="Search Mode" description="Enable search-like interface" default="false" />
+            <property name="searchModeWelcomeText" type="String" label="Search Mode Welcome Text" description="Welcome text shown above the search bar in search mode" default="How can Agentforce help?" />
+            <property name="gradientStartColor" type="String" label="Gradient Start Color" description="Start color for the search mode background gradient" default="#F0F7FF" />
+            <property name="gradientEndColor" type="String" label="Gradient End Color" description="End color for the search mode background gradient" default="#C8DCFF" />
+            <property name="themeColor" type="String" label="Theme Color" description="Color for the chat header and user messages" default="#0076d3" />
         </targetConfig>
     </targetConfigs>
 </LightningComponentBundle> 

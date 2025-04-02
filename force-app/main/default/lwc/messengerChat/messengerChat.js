@@ -19,6 +19,11 @@ export default class MessengerChat extends LightningElement {
     @api murfApiKey = ''; // API key for Murf.ai TTS service
     @api consumerKey = ''; // Consumer Key for Agentforce API auth
     @api consumerSecret = ''; // Consumer Secret for Agentforce API auth
+    @api searchMode = false; // Search Mode configuration
+    @api searchModeWelcomeText = 'How can Agentforce help?'; // Welcome text for search mode
+    @api gradientStartColor = '#F0F7FF'; // Start color for the search mode background gradient
+    @api gradientEndColor = '#C8DCFF'; // End color for the search mode background gradient
+    @api themeColor = '#0076d3'; // Theme color for header and user messages
 
     // Reactive component state
     @track messages = [];
@@ -41,6 +46,8 @@ export default class MessengerChat extends LightningElement {
     @track isListening = false;
     @track isSpeaking = false;
     @track voiceStatusText = 'Listening to you...';
+    @track isSearchMode = false; // Track if currently in search mode
+    @track isFirstUserMessage = true; // Track if this is the first user message
     murfttsEndpoint = 'https://api.murf.ai/v1/speech/generate';
 
     // Internal flags
@@ -58,23 +65,38 @@ export default class MessengerChat extends LightningElement {
     @track wasMinimized = false;
 
     connectedCallback() {
-        // Apply dark mode based on user preference or defaultDarkMode setting
-        try {
-            const savedTheme = localStorage.getItem('messengerChatDarkMode');
-            this.isDarkMode = savedTheme !== null ? savedTheme === 'true' : this.defaultDarkMode;
-            
-            if (this.isDarkMode) {
-                this.applyDarkMode();
+        // Apply search mode based on configuration
+        this.isSearchMode = this.searchMode;
+        
+        // In search mode, we always start with light mode
+        if (this.isSearchMode) {
+            this.isDarkMode = false;
+            this.applyLightMode();
+        } else {
+            // Apply dark mode based on user preference or defaultDarkMode setting
+            try {
+                const savedTheme = localStorage.getItem('messengerChatDarkMode');
+                this.isDarkMode = savedTheme !== null ? savedTheme === 'true' : this.defaultDarkMode;
+                
+                if (this.isDarkMode) {
+                    this.applyDarkMode();
+                }
+            } catch (e) {
+                console.error('Error accessing localStorage', e);
+                this.isDarkMode = this.defaultDarkMode;
             }
-        } catch (e) {
-            console.error('Error accessing localStorage', e);
-            this.isDarkMode = this.defaultDarkMode;
         }
 
-        // Initial UI state
-        this.showChatBubble = true;
-        this.showChatWindow = false;
-        this.chatEnded = false;
+        // Initial UI state - adjust based on search mode
+        if (this.isSearchMode) {
+            this.showChatBubble = false;
+            this.showChatWindow = true;
+            this.isExpanded = false; // Start unexpanded in search mode
+        } else {
+            this.showChatBubble = true;
+            this.showChatWindow = false;
+            this.chatEnded = false;
+        }
         
         // Generate a temporary session ID before initialization
         this.sessionId = 'session_' + this.generateUUID();
@@ -85,11 +107,17 @@ export default class MessengerChat extends LightningElement {
         window.addEventListener('touchmove', this.handleTouchMove.bind(this), { passive: false });
         window.addEventListener('touchend', this.handleTouchEnd.bind(this));
 
-        if (this.isEmbedded) {
+        if (this.isEmbedded && !this.isSearchMode) {
             // For Experience Cloud, set default position and enable voice mode
+            // But don't override position in search mode
             this.position = 'bottom-right';
             this.headerText = 'Agentforce';
             this.allowVoiceMode = true;
+        }
+        
+        // If in search mode, initialize the agent session immediately
+        if (this.isSearchMode) {
+            this.initializeAgentforce(true); // Pass true to indicate search mode
         }
     }
 
@@ -109,7 +137,7 @@ export default class MessengerChat extends LightningElement {
     // ------------------------------
     // Agent Session Initialization
     // ------------------------------
-    initializeAgentforce() {
+    initializeAgentforce(isSearchModeInit = false) {
         if (this.isInitialized) {
             console.log('Skipping initialization – already initialized');
             return;
@@ -141,19 +169,23 @@ export default class MessengerChat extends LightningElement {
             return;
         }
         
-        console.log('Initializing Agentforce session with agent ID:', this.agentId);
-        this.isTyping = true;
-        this.messages = [...this.messages, {
-            id: `msg_${Date.now()}`,
-            text: 'Welcome! Initializing Agentforce...',
-            sender: 'agent',
-            cssClass: 'message bot-message',
-            timestamp: this.getTimestamp()
-        }];
+        if (!isSearchModeInit) {
+            console.log('Initializing Agentforce session with agent ID:', this.agentId);
+            this.isTyping = true;
+            this.messages = [...this.messages, {
+                id: `msg_${Date.now()}`,
+                text: 'Welcome! Initializing Agentforce...',
+                sender: 'agent',
+                cssClass: 'message bot-message',
+                timestamp: this.getTimestamp()
+            }];
+        }
 
         const initializationTimeout = setTimeout(() => {
-            console.log('Initialization is taking longer than expected...');
-            this.updateInitializationMessage('Still working on connecting to Agentforce...');
+            if (!isSearchModeInit) {
+                console.log('Initialization is taking longer than expected...');
+                this.updateInitializationMessage('Still working on connecting to Agentforce...');
+            }
         }, 5000);
 
         let retryCount = 0;
@@ -179,20 +211,27 @@ export default class MessengerChat extends LightningElement {
                     }
                     this.sessionId = result;
                     this.isInitialized = true;
-                    this.updateInitializationMessage('Connected to Agentforce successfully!');
                     
-                    // Set a flag to track that we've added the welcome message
-                    if (!this.welcomeMessageAdded) {
-                        setTimeout(() => {
-                            // Remove initialization messages
-                            this.messages = this.messages.filter(m => 
-                                !m.text.includes('Connected to Agentforce') && 
-                                !m.text.includes('Initializing Agentforce')
-                            );
-                            // Let the agent response system handle the first message
-                            this.getAgentResponse('Hello');
-                            this.welcomeMessageAdded = true;
-                        }, 1500);
+                    if (!isSearchModeInit) {
+                        this.updateInitializationMessage('Connected to Agentforce successfully!');
+                        
+                        // Set a flag to track that we've added the welcome message
+                        if (!this.welcomeMessageAdded) {
+                            setTimeout(() => {
+                                // Remove initialization messages
+                                this.messages = this.messages.filter(m => 
+                                    !m.text.includes('Connected to Agentforce') && 
+                                    !m.text.includes('Initializing Agentforce')
+                                );
+                                // Let the agent response system handle the first message
+                                this.getAgentResponse('Hello');
+                                this.welcomeMessageAdded = true;
+                            }, 1500);
+                        }
+                    } else {
+                        // In search mode, we don't show any welcome messages
+                        // Agent is ready but silent until first user input
+                        this.welcomeMessageAdded = true;
                     }
                 })
                 .catch(error => {
@@ -269,6 +308,10 @@ export default class MessengerChat extends LightningElement {
     // Chat UI Toggle Handlers
     // ------------------------------
     handleChatBubbleClick() {
+        if (this.isSearchMode) {
+            return; // Chat bubble is not used in search mode
+        }
+        
         console.log('Chat bubble clicked');
         this.showChatBubble = false;
         this.showChatWindow = true;
@@ -308,32 +351,21 @@ export default class MessengerChat extends LightningElement {
     handleToggleExpand() {
         console.log('Toggling expanded state:', this.isExpanded, '->', !this.isExpanded);
         this.isExpanded = !this.isExpanded;
+        
+        if (this.isExpanded) {
+            // Expanded state styling - full screen
+            document.body.style.overflow = 'hidden';
+        } else {
+            // Regular state styling
+            document.body.style.overflow = '';
+        }
+        
+        // Close options menu when toggling
         this.showOptionsMenu = false;
-        const chatWindow = this.template.querySelector('.chat-window');
-        if (chatWindow) {
-            if (this.isExpanded) {
-                chatWindow.classList.add('expanded');
-                // Reset any manual positioning that might have been set by dragging
-                chatWindow.style.transform = 'none';
-                chatWindow.style.top = '0';
-                chatWindow.style.left = '0';
-                chatWindow.style.right = '0';
-                chatWindow.style.bottom = '0';
-                this.lastX = 0;
-                this.lastY = 0;
-            } else {
-                chatWindow.classList.remove('expanded');
-                chatWindow.style.transform = 'none';
-                // Reset to original position
-                chatWindow.style.top = '';
-                chatWindow.style.left = '';
-                chatWindow.style.right = '30px';
-                chatWindow.style.bottom = '30px';
-                chatWindow.style.width = '400px';
-                chatWindow.style.height = '600px';
-            }
-            // Force scroll to bottom after toggling expanded state
-            setTimeout(() => this.scrollToBottom(), 50);
+        
+        // Scroll to bottom after expanding
+        if (this.isExpanded) {
+            this.scrollToBottom();
         }
     }
 
@@ -412,16 +444,25 @@ export default class MessengerChat extends LightningElement {
     }
 
     handleMinimizeToBubble() {
+        if (this.isSearchMode) {
+            // If expanded, return to container size
+            if (this.isExpanded) {
+                this.isExpanded = false;
+                document.body.style.overflow = '';
+            } else {
+                // Not expanded and in search mode, show chat bubble
+                this.showChatWindow = false;
+                this.showChatBubble = true;
+                this.wasMinimized = true;
+            }
+            return;
+        }
+        
+        // Regular minimize to bubble behavior
         console.log('Minimizing to bubble');
         this.showChatWindow = false;
         this.showChatBubble = true;
-        this.showOptionsMenu = false;
-        
-        // Set the flag indicating chat was minimized, not ended
         this.wasMinimized = true;
-        
-        // Stop any playing audio when minimizing
-        this.stopAudioPlayback();
     }
 
     // ------------------------------
@@ -464,13 +505,19 @@ export default class MessengerChat extends LightningElement {
     }
 
     sendMessage() {
-        const textArea = this.template.querySelector('textarea');
-        const message = textArea ? textArea.value.trim() : '';
-        if (!message) return;
-        if (textArea) textArea.value = '';
+        const text = this.template.querySelector('.message-textarea').value.trim();
+        if (text === '') return;
+        
+        if (this.isSearchMode && this.isFirstUserMessage) {
+            // For the first message in search mode, stay in container size
+            this.isFirstUserMessage = false;
+            // Don't expand automatically, keep confined to container
+        }
+        
+        this.addUserMessage(text);
+        this.getAgentResponse(text);
+        this.template.querySelector('.message-textarea').value = '';
         this.messageText = '';
-        this.addUserMessage(message);
-        this.getAgentResponse(message);
     }
 
     addUserMessage(text) {
@@ -1179,67 +1226,85 @@ export default class MessengerChat extends LightningElement {
     }
 
     endChat() {
-        console.log('Ending chat session');
-        this.showEndChatModal = false;
-        
-        // Stop any playing audio when ending chat
-        this.stopAudioPlayback();
-        
-        // Set isSessionEnding flag to prevent duplicate calls
+        // Prevent multiple end chat calls in progress
         if (this.isSessionEnding) {
-            console.log('Session is already ending, skipping duplicate call');
             return;
         }
-        
+
+        console.log('Ending chat session:', this.sessionId);
         this.isSessionEnding = true;
         
-        // Reset minimized flag since we're properly ending the chat
-        this.wasMinimized = false;
+        if (this.isVoiceMode) {
+            this.toggleVoiceInput();
+        }
         
-        // Add a goodbye message
-        this.messages = [...this.messages, {
-            id: `msg_${Date.now()}`,
-            text: 'Thank you for chatting with us today. Your conversation has ended.',
-            sender: 'system',
-            cssClass: 'message system-message',
-            timestamp: this.getTimestamp()
-        }];
+        // Add a message indicating the chat has ended - as an agent message instead of system
+        this.addMessage('Ending chat session.', 'agent');
         
-        this.scrollToBottom();
+        // Stop any ongoing speech
+        if (window.speechSynthesis) {
+            window.speechSynthesis.cancel();
+        }
         
-        // Call Apex to end the session
+        // Call the controller to end the session
         if (this.sessionId) {
-            endAgentSession({ 
-                sessionId: this.sessionId,
-                consumerKey: this.consumerKey,
-                consumerSecret: this.consumerSecret
-            })
+            endAgentSession({ sessionId: this.sessionId })
                 .then(() => {
                     console.log('Session ended successfully');
                 })
                 .catch(error => {
-                    console.error('Error ending session:', error);
+                    console.error('Error ending session:', this.reduceError(error));
                 })
                 .finally(() => {
-                    // Set chat to ended state and show chat bubble again
-                    this.chatEnded = true;
-                    this.showChatWindow = false;
-                    this.showChatBubble = true;
                     this.isSessionEnding = false;
-                    // Reset session ID and initialization flag so a new chat can be started
-                    this.sessionId = null;
-                    this.isInitialized = false;
+                    // If search mode is enabled, return to initial search state 
+                    if (this.isSearchMode) {
+                        this.resetChatStateForSearchMode();
+                    } else {
+                        // Standard end chat behavior - restore original behavior
+                        this.showEndChatModal = false;
+                        this.chatEnded = true;
+                        this.showOptionsMenu = false;
+                        this.showChatWindow = false; // Changed back to false to close the window
+                        this.showChatBubble = true;  // Changed back to true to show chat bubble
+                    }
                 });
         } else {
-            // Set chat to ended state and show chat bubble again
-            this.chatEnded = true;
-            this.showChatWindow = false;
-            this.showChatBubble = true;
+            // If no session ID, just reset the UI state
             this.isSessionEnding = false;
-            // Reset session ID and initialization flag so a new chat can be started
-            this.sessionId = null;
-            this.isInitialized = false;
+            // If search mode is enabled, return to initial search state
+            if (this.isSearchMode) {
+                this.resetChatStateForSearchMode();
+            } else {
+                // Standard end chat behavior - restore original behavior
+                this.showEndChatModal = false;
+                this.chatEnded = true;
+                this.showOptionsMenu = false;
+                this.showChatWindow = false; // Changed back to false to close the window
+                this.showChatBubble = true;  // Changed back to true to show chat bubble
+            }
         }
+    }
+
+    // New method to reset chat state for search mode
+    resetChatStateForSearchMode() {
+        // Clear messages
+        this.messages = [];
+        this.showEndChatModal = false;
+        this.chatEnded = false;
+        this.isExpanded = false;
+        this.isFirstUserMessage = true;
+        this.welcomeMessageAdded = false;
+        this.isInitialized = false;
+        this.showChatWindow = true;
+        this.showChatBubble = false;
+        this.showOptionsMenu = false;
+
+        // Generate a new temporary session ID
+        this.sessionId = 'session_' + this.generateUUID();
+        
+        // Initialize a new session
+        this.initializeAgentforce(true); // Pass true to indicate search mode
     }
 
     resetChatState() {
@@ -1309,13 +1374,27 @@ export default class MessengerChat extends LightningElement {
     
     get chatWindowClasses() {
         let classes = 'chat-window';
-        classes += ` position-${this.position}`;
+        
         if (this.isDarkMode) {
             classes += ' dark-mode';
         }
+        
         if (this.isExpanded) {
             classes += ' expanded';
         }
+        
+        if (this.position && !this.isSearchMode) {
+            classes += ` position-${this.position}`;
+        }
+        
+        if (this.isSearchMode) {
+            classes += ' search-mode';
+            
+            if (this.isFirstUserMessage) {
+                classes += ' first-message';
+            }
+        }
+        
         return classes;
     }
     
@@ -1337,6 +1416,11 @@ export default class MessengerChat extends LightningElement {
     }
     
     get formattedMessages() {
+        // In search mode, don't show any messages until first user input
+        if (this.isSearchMode && this.isFirstUserMessage) {
+            return [];
+        }
+        
         return this.messages.map(message => {
             const isAgentMessage = message.sender === 'agent';
             // More explicitly check for typing messages
@@ -1647,12 +1731,20 @@ export default class MessengerChat extends LightningElement {
         }
     }
 
-    // Modify the renderedCallback method to handle HTML message rendering
+    // Update the renderedCallback method to properly handle rendering
     renderedCallback() {
+        // Set the theme color CSS variable
+        if (this.template.host) {
+            this.template.host.style.setProperty('--messengerChatThemeColor', this.themeColor);
+        }
+        
         // Handle the DOM manipulation for HTML content in agent messages
         this.renderAgentMessages();
         
-        // Other existing code...
+        // Setup voice visualizer if needed
+        this.setupVoiceVisualizerIfNeeded();
+        
+        // Handle scrolling if needed
         if (this.shouldScrollToBottom) {
             this.scrollToBottom();
             this.shouldScrollToBottom = false;
@@ -1867,6 +1959,116 @@ export default class MessengerChat extends LightningElement {
                 setTimeout(() => this.startVoiceRecognition(), 200);
             }
         }, 100);
+    }
+
+    get showExpandOption() {
+        // In search mode, show expand option after first user message
+        if (this.isSearchMode) {
+            return !this.isFirstUserMessage;
+        }
+        
+        return true;
+    }
+
+    // Add this getter method to display the welcome message in search mode
+    get showSearchModeWelcome() {
+        return this.isSearchMode && this.isFirstUserMessage;
+    }
+
+    // Add this getter method to provide the placeholder text for the search input
+    get searchInputPlaceholder() {
+        if (this.isSearchMode && this.isFirstUserMessage) {
+            return "Let me know what's on your mind!";
+        }
+        return "Send a Message to Agentforce";
+    }
+
+    // Add this getter to generate the gradient style
+    get searchModeGradientStyle() {
+        const startColor = this.gradientStartColor || '#F0F7FF';
+        const endColor = this.gradientEndColor || '#C8DCFF';
+        return `background: linear-gradient(to bottom, ${this.hexToRgba(startColor, 0.15)}, ${this.hexToRgba(endColor, 0.15)});`;
+    }
+
+    // Convert hex color to rgba
+    hexToRgba(hex, alpha) {
+        let r = 0, g = 0, b = 0;
+        
+        // Check if the hex color is in the format #RRGGBB or #RGB
+        if (hex.match(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/)) {
+            // Remove the # character
+            hex = hex.substring(1);
+            
+            // Convert #RGB to #RRGGBB
+            if (hex.length === 3) {
+                hex = hex.split('').map(char => char + char).join('');
+            }
+            
+            // Convert the hex values to RGB
+            r = parseInt(hex.substring(0, 2), 16);
+            g = parseInt(hex.substring(2, 4), 16);
+            b = parseInt(hex.substring(4, 6), 16);
+        }
+        
+        return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
+
+    // Update the chatWindowStyle getter
+    get chatWindowStyle() {
+        // Don't apply gradient directly to the window
+        return '';
+    }
+
+    // Add showMinimizeOption getter
+    get showMinimizeOption() {
+        // Never show minimize to bubble in search mode
+        if (this.isSearchMode) {
+            return false;
+        }
+        
+        return true;
+    }
+
+    // Add minimizeMenuText getter
+    get minimizeMenuText() {
+        return 'Close Chat Window';
+    }
+
+    // Add this getter to apply custom theme color to the header
+    get headerStyle() {
+        return `background-color: ${this.themeColor} !important;`;
+    }
+
+    // Add this getter to apply custom theme color to user messages
+    get userMessageStyle() {
+        return `background-color: ${this.themeColor} !important;`;
+    }
+
+    // Add the setupVoiceVisualizerIfNeeded method
+    setupVoiceVisualizerIfNeeded() {
+        // This method is a placeholder for voice visualizer initialization
+        // We're keeping it to maintain the structure of the renderedCallback
+    }
+
+    // Add or update the renderHtmlContent method
+    renderHtmlContent() {
+        // Handle the DOM manipulation for HTML content in agent messages
+        const htmlElements = this.template.querySelectorAll('.lwc-manual-render');
+        if (htmlElements && htmlElements.length > 0) {
+            htmlElements.forEach(element => {
+                const messageId = element.dataset.id;
+                const message = this.messages.find(m => m.id === messageId);
+                if (message && message.rawHtml && !element.hasChildNodes()) {
+                    element.innerHTML = message.rawHtml;
+                }
+            });
+        }
+        
+        // Handle scrolling to bottom if needed
+        if (this.shouldScrollToBottom) {
+            this.scrollToBottom();
+            this.shouldScrollToBottom = false;
+        }
     }
 
 }

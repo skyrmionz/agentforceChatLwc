@@ -206,7 +206,13 @@ In your terminal, (in Code Builder, click into the 3 lines on top left corner â†
    - Trusted Site URL: `https://murf.ai`
    - Active: Checked
    - Context: Allow all contexts
-5. Save the trusted sites
+5. Create another for help.salesforce.com
+   - Trusted Site Name: `SalesforceHelp`
+   - Trusted Site URL: `https://help.salesforce.com`
+   - Active: Checked
+   - Context: Allow all contexts
+   - Make sure img-src is selected
+6. Save the trusted sites
 
 ### Step 7: Set Up Experience Cloud Site
 
@@ -231,6 +237,8 @@ In your terminal, (in Code Builder, click into the 3 lines on top left corner â†
    - `https://api.salesforce.com`
    - `https://api.murf.ai` (if using TTS)
    - `https://murf.ai`
+   - `https://salesforce.com`
+   - `https://help.salesforce.com`
 3. Save and publish your site
 
 ### Step 9: Test the Integration
@@ -253,8 +261,14 @@ You can customize the appearance and behavior of the chat widget by:
 
 1. Modifying the CSS in `messengerChat.css`
 2. Updating default properties in `messengerChat.js`
-3. Configuring component properties in Experience Builder
+3. Modifying the HTML to place objects in `messengerChat.html`
+4. Configuring component properties in Experience Builder
+
+You can do this with the LWC on the Experience Cloud Builder:
+1. Add a Murf API Key for Voice Experience
+2. Do a "Search Mode" which mimics the help.salesforce.com Search Experience
+3. Choose your own theme color for the component
+4. Choose gradient coloring for Search Mode
 
 ## Looking Forward
-- Planning on adding multi-modal image text extraction capabilities with Gemini API
-- Planning on adding more customization to LWC (choosing color, sizing, etc.)
+- Planning on adding multi-modal image text extraction capabilities with Gemini API (Cameron Karagitz to add!)

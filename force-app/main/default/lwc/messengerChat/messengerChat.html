@@ -9,9 +9,9 @@
         </div>
         
         <!-- Main Chat Window -->
-        <div if:true={showChatWindow} class={chatWindowClasses}>
-            <!-- Chat Header -->
-            <div class="chat-header" onmousedown={handleHeaderMouseDown} ontouchstart={handleHeaderMouseDown}>
+        <div if:true={showChatWindow} class={chatWindowClasses} style={chatWindowStyle}>
+            <!-- Chat Header - Hide in initial search mode -->
+            <div if:false={showSearchModeWelcome} class="chat-header" style={headerStyle} onmousedown={handleHeaderMouseDown} ontouchstart={handleHeaderMouseDown}>
                 <div class="chat-title">
                     <div class="header-title">{agentName}</div>
                 </div>
@@ -36,19 +36,31 @@
                                     <lightning-icon icon-name={themeIcon} size="x-small"></lightning-icon>
                                     <span>{themeMenuText}</span>
                                 </li>
-                                <li onclick={handleToggleExpand}>
+                                <li if:true={showExpandOption} onclick={handleToggleExpand}>
                                     <lightning-icon icon-name={expandIcon} size="x-small"></lightning-icon>
                                     <span>{expandMenuText}</span>
                                 </li>
-                                <li onclick={handleMinimizeToBubble}>
+                                <li if:true={showMinimizeOption} onclick={handleMinimizeToBubble}>
                                     <lightning-icon icon-name="utility:minimize_window" size="x-small"></lightning-icon>
-                                    <span>Minimize to Bubble</span>
+                                    <span>{minimizeMenuText}</span>
                                 </li>
                             </ul>
                         </div>
                     </template>
                 </div>
             </div>
+            
+            <!-- Search Mode Welcome Message -->
+            <template if:true={showSearchModeWelcome}>
+                <div class="search-mode-content">
+                    <div class="search-mode-image">
+                        <img src="https://help.salesforce.com/resource/1733538286000/HTCommunityCustomImages/png/agentforce-agent-astro.png" alt="Agentforce Agent" />
+                    </div>
+                    <div class="search-mode-welcome">
+                        {searchModeWelcomeText}
+                    </div>
+                </div>
+            </template>
             
             <!-- Chat Message Container -->
             <div class="chat-messages">
@@ -91,8 +103,10 @@
                         </template>
                         <!-- For non-agent (user) messages -->
                         <template if:false={message.isAgentMessage}>
-                            <div class="message-content">
-                                <p>{message.text}</p>
+                            <div class="message-container user-message">
+                                <div class="message-content" style={userMessageStyle}>
+                                    <p>{message.text}</p>
+                                </div>
                             </div>
                         </template>
                         <span class="timestamp">{message.timestamp}</span>
@@ -133,7 +147,7 @@
             <!-- Chat Input Container -->
             <div class="chat-input">
                 <div class="input-container">
-                    <textarea placeholder="Send a Message to Agentforce" onkeydown={handleKeyPress} onkeyup={handleMessageChange} disabled={isInputDisabled} class="message-textarea"></textarea>
+                    <textarea placeholder={searchInputPlaceholder} onkeydown={handleKeyPress} onkeyup={handleMessageChange} disabled={isInputDisabled} class="message-textarea"></textarea>
                 </div>
             </div>
         </div>
