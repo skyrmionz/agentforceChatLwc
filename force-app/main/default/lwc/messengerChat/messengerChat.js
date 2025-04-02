@@ -107,9 +107,9 @@ export default class MessengerChat extends LightningElement {
         window.addEventListener('touchmove', this.handleTouchMove.bind(this), { passive: false });
         window.addEventListener('touchend', this.handleTouchEnd.bind(this));
 
-        if (this.isEmbedded && !this.isSearchMode) {
+        if (this.isEmbedded) {
             // For Experience Cloud, set default position and enable voice mode
-            // But don't override position in search mode
+            // Always allow voice mode regardless of search mode
             this.position = 'bottom-right';
             this.headerText = 'Agentforce';
             this.allowVoiceMode = true;
@@ -1299,6 +1299,15 @@ export default class MessengerChat extends LightningElement {
         this.showChatWindow = true;
         this.showChatBubble = false;
         this.showOptionsMenu = false;
+        
+        // Reset to Light Mode
+        if (this.isDarkMode) {
+            this.isDarkMode = false;
+            const chatWindow = this.template.querySelector('.chat-window');
+            if (chatWindow) {
+                chatWindow.classList.remove('dark-mode');
+            }
+        }
 
         // Generate a new temporary session ID
         this.sessionId = 'session_' + this.generateUUID();
@@ -1627,6 +1636,7 @@ export default class MessengerChat extends LightningElement {
 
     // Voice mode should be shown in Experience Cloud or when explicitly enabled
     get showVoiceModeOption() {
+        // Allow voice mode in both regular mode and search mode
         return this.allowVoiceMode || this.isEmbedded;
     }
 
