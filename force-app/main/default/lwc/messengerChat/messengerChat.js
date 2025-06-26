@@ -13,6 +13,7 @@ export default class MessengerChat extends LightningElement {
     @api defaultDarkMode = false;
     @api welcomeMessage = 'Hello! How can I assist you today?';
     @api allowVoiceMode = false;
+    @api defaultVoiceMode = false; // Automatically start in voice mode after first message
     @api position = 'bottom-right';
     @api agentId = ''; // Replace with your actual Agentforce Agent ID
     @api headerText = 'Agentforce';
@@ -45,9 +46,11 @@ export default class MessengerChat extends LightningElement {
     @track isTypewriterActive = false;
     @track isListening = false;
     @track isSpeaking = false;
+    @track isMicrophoneMuted = false;
     @track voiceStatusText = 'Listening to you...';
     @track isSearchMode = false; // Track if currently in search mode
     @track isFirstUserMessage = true; // Track if this is the first user message
+    @track isActivelySpeaking = false; // Track if user is actively speaking (detected by mic)
     murfttsEndpoint = 'https://api.murf.ai/v1/speech/generate';
 
     // Internal flags
@@ -60,6 +63,11 @@ export default class MessengerChat extends LightningElement {
     lastX = 0;
     lastY = 0;
     isFirstThinkingMessage = true;
+    
+    // Voice recognition pause timer
+    voicePauseTimer = null;
+    lastTranscript = '';
+    activeSpeakingTimer = null; // Timer to reset active speaking after silence
 
     // Track if chat was minimized vs. ended
     @track wasMinimized = false;
@@ -417,6 +425,7 @@ export default class MessengerChat extends LightningElement {
         if (this.isVoiceMode) {
             this.isListening = true;
             this.isSpeaking = false;
+            this.isMicrophoneMuted = false;
             this.voiceStatusText = 'Listening to you...';
             
             // Directly start voice recognition without testing Murf.ai API
@@ -424,6 +433,15 @@ export default class MessengerChat extends LightningElement {
         } else {
             this.isListening = false;
             this.isSpeaking = false;
+            this.isMicrophoneMuted = false;
+            
+            // Clear any pending voice pause timer when exiting voice mode
+            if (this.voicePauseTimer) {
+                clearTimeout(this.voicePauseTimer);
+                this.voicePauseTimer = null;
+            }
+            this.lastTranscript = '';
+            
             this.stopVoiceRecognition();
         }
         this.showOptionsMenu = false;
@@ -510,7 +528,6 @@ export default class MessengerChat extends LightningElement {
         
         if (this.isSearchMode && this.isFirstUserMessage) {
             // For the first message in search mode, stay in container size
-            this.isFirstUserMessage = false;
             // Don't expand automatically, keep confined to container
         }
         
@@ -522,7 +539,31 @@ export default class MessengerChat extends LightningElement {
 
     addUserMessage(text) {
         if (!text.trim()) return;
+        
+        // Check if this is the first message and default voice mode is enabled
+        // Only activate if not already in voice mode
+        const shouldActivateVoiceMode = this.isFirstUserMessage && this.defaultVoiceMode && 
+                                       !this.isVoiceMode && (this.allowVoiceMode || this.isEmbedded);
+        
         this.addMessage(text, 'user');
+        
+        // Update first message flag and activate voice mode if configured
+        if (this.isFirstUserMessage) {
+            this.isFirstUserMessage = false;
+            
+            // Activate voice mode immediately after the first message if configured
+            if (shouldActivateVoiceMode) {
+                // Manually activate voice mode in "thinking" state instead of using toggleVoiceInput()
+                this.stopAudioPlayback(); // Stop any audio first
+                this.isVoiceMode = true;
+                this.isListening = false; // Not listening while thinking
+                this.isSpeaking = false;
+                this.isMicrophoneMuted = true; // Auto-mute during thinking
+                this.voiceStatusText = 'Agentforce is thinking...';
+                this.showOptionsMenu = false;
+                // Don't start voice recognition yet since we're in thinking mode
+            }
+        }
     }
 
     addBotMessage(text) {
@@ -769,6 +810,11 @@ export default class MessengerChat extends LightningElement {
     // Voice Recognition
     // ------------------------------
     startVoiceRecognition() {
+        // Don't start voice recognition if microphone is muted
+        if (this.isMicrophoneMuted) {
+            return;
+        }
+        
         try {
             // First make sure any existing recognition is stopped
             if (this.recognition) {
@@ -785,13 +831,14 @@ export default class MessengerChat extends LightningElement {
             if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
                 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
                 this.recognition = new SpeechRecognition();
-                this.recognition.continuous = false; // Change to false to stop after pause
+                this.recognition.continuous = true; // Change to true for continuous listening
                 this.recognition.interimResults = true;
                 this.recognition.lang = 'en-US';
 
                 this.recognition.onstart = () => {
                     console.log('Voice recognition started');
                     this.isListening = true;
+                    this.isActivelySpeaking = false; // Reset active speaking flag
                     this.voiceStatusText = 'Listening to you...';
                     // Start visualizer animation for microphone input
                     this.startVisualizerAnimation();
@@ -801,25 +848,59 @@ export default class MessengerChat extends LightningElement {
                     const resultIndex = event.resultIndex;
                     const transcript = event.results[resultIndex][0].transcript;
                     
+                    // Track active speaking for pulse animation
+                    this.isActivelySpeaking = true;
+                    
+                    // Clear any existing active speaking timer and start a new one
+                    if (this.activeSpeakingTimer) {
+                        clearTimeout(this.activeSpeakingTimer);
+                    }
+                    this.activeSpeakingTimer = setTimeout(() => {
+                        this.isActivelySpeaking = false;
+                    }, 1000); // Reset after 1 second of silence
+                    
                     // Update visualizer based on voice volume
                     const volume = event.results[resultIndex][0].confidence || 0.5;
                     this.updateVisualizerVolume(volume);
                     
+                    // Clear any existing pause timer
+                    if (this.voicePauseTimer) {
+                        clearTimeout(this.voicePauseTimer);
+                        this.voicePauseTimer = null;
+                    }
+                    
+                    // Update the last transcript
+                    this.lastTranscript = transcript;
+                    
+                    // For final results, start a pause timer
                     if (event.results[resultIndex].isFinal && transcript.trim().length > 0) {
-                        console.log('Final voice transcript:', transcript);
+                        console.log('Final voice transcript (waiting for pause):', transcript);
                         
-                        // Set UI state to "thinking"
-                        this.isListening = false;
-                        this.voiceStatusText = 'Agentforce is thinking...';
+                        // Stop active speaking animation since speech ended
+                        this.isActivelySpeaking = false;
                         
-                        // Add the user message to the conversation
-                        this.addUserMessage(transcript);
-                        
-                        // Stop listening while processing
-                        try { this.recognition.stop(); } catch (e) { console.error(e); }
-                        
-                        // Get agent response
-                        this.getAgentResponse(transcript);
+                        // Start a 2.5 second timer
+                        this.voicePauseTimer = setTimeout(() => {
+                            console.log('Voice pause detected, sending message:', this.lastTranscript);
+                            
+                            // Set UI state to "thinking"
+                            this.isListening = false;
+                            this.isActivelySpeaking = false;
+                            this.voiceStatusText = 'Agentforce is thinking...';
+                            
+                            // Add the user message to the conversation
+                            this.addUserMessage(this.lastTranscript);
+                            
+                            // Stop listening while processing
+                            try { this.recognition.stop(); } catch (e) { console.error(e); }
+                            
+                            // Get agent response
+                            this.getAgentResponse(this.lastTranscript);
+                            
+                            // Clear the timer and transcript
+                            this.voicePauseTimer = null;
+                            this.lastTranscript = '';
+                        }, 2500); // 2.5 second delay
                     }
                 };
                 
@@ -945,9 +1026,10 @@ export default class MessengerChat extends LightningElement {
     speakText(text) {
         if (!text) return;
         
-        // Set UI state to speaking
+        // Set UI state to speaking and mute microphone
         this.isListening = false;
         this.isSpeaking = true;
+        this.stopVoiceRecognition(); // Ensure microphone is stopped
         
         // Use "incoming" for first voice message
         const voiceStatusText = this.isFirstThinkingMessage ? "Agentforce incoming..." : "Agentforce is responding...";
@@ -1109,23 +1191,35 @@ export default class MessengerChat extends LightningElement {
                 console.log('Browser TTS ended');
                 // Reset UI state
                 this.isSpeaking = false;
-                this.isListening = true;
-                this.voiceStatusText = 'Listening to you...';
                 
-                // Restart voice recognition
-                if (this.isVoiceMode) {
-                    this.startVoiceRecognition();
+                // Only restart listening if microphone is not manually muted
+                if (!this.isMicrophoneMuted) {
+                    this.isListening = true;
+                    this.voiceStatusText = 'Listening to you...';
+                    
+                    // Restart voice recognition
+                    if (this.isVoiceMode) {
+                        this.startVoiceRecognition();
+                    }
+                } else {
+                    this.voiceStatusText = 'Microphone muted';
                 }
             };
             
             utterance.onerror = (event) => {
                 console.error('Browser TTS error:', event);
                 this.isSpeaking = false;
-                this.isListening = true;
-                this.voiceStatusText = 'Listening to you...';
                 
-                if (this.isVoiceMode) {
-                    this.startVoiceRecognition();
+                // Only restart listening if microphone is not manually muted
+                if (!this.isMicrophoneMuted) {
+                    this.isListening = true;
+                    this.voiceStatusText = 'Listening to you...';
+                    
+                    if (this.isVoiceMode) {
+                        this.startVoiceRecognition();
+                    }
+                } else {
+                    this.voiceStatusText = 'Microphone muted';
                 }
             };
             
@@ -1367,6 +1461,14 @@ export default class MessengerChat extends LightningElement {
     get voiceMenuText() {
         return this.isVoiceMode ? 'Switch to Text Mode' : 'Switch to Voice Mode';
     }
+
+    get muteIcon() {
+        return this.isMicrophoneMuted ? 'utility:muted' : 'utility:unmuted';
+    }
+
+    get muteButtonText() {
+        return this.isMicrophoneMuted ? 'Unmute' : 'Mute';
+    }
     
     get themeMenuText() {
         return this.isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode';
@@ -1417,6 +1519,10 @@ export default class MessengerChat extends LightningElement {
     }
     
     get isInputDisabled() {
+        // In search mode, disable input until first Agentforce message comes through
+        if (this.isSearchMode && this.isFirstUserMessage && !this.isInitialized) {
+            return true;
+        }
         return this.isTyping || this.isVoiceMode || this.isTypewriterActive || this.isAgentTyping;
     }
     
@@ -1579,6 +1685,26 @@ export default class MessengerChat extends LightningElement {
         this.showOptionsMenu = false;
     }
 
+    handleToggleMicrophone() {
+        this.isMicrophoneMuted = !this.isMicrophoneMuted;
+        
+        if (this.isMicrophoneMuted) {
+            // Mute: stop listening and stop voice recognition
+            this.stopVoiceRecognition();
+            this.isListening = false;
+            this.isActivelySpeaking = false;
+            this.voiceStatusText = 'Microphone muted';
+        } else {
+            // Unmute: restart voice recognition if not speaking
+            if (!this.isSpeaking) {
+                this.isListening = true;
+                this.isActivelySpeaking = false;
+                this.voiceStatusText = 'Listening to you...';
+                this.startVoiceRecognition();
+            }
+        }
+    }
+
     showEndChatConfirmation() {
         // Stop any audio playback when showing end chat dialog
         this.stopAudioPlayback();
@@ -1592,6 +1718,21 @@ export default class MessengerChat extends LightningElement {
     }
 
     stopVoiceRecognition() {
+        // Clear any pending voice pause timer
+        if (this.voicePauseTimer) {
+            clearTimeout(this.voicePauseTimer);
+            this.voicePauseTimer = null;
+        }
+        
+        // Clear active speaking timer
+        if (this.activeSpeakingTimer) {
+            clearTimeout(this.activeSpeakingTimer);
+            this.activeSpeakingTimer = null;
+        }
+        
+        this.lastTranscript = '';
+        this.isActivelySpeaking = false; // Reset active speaking flag
+        
         if (this.recognition) {
             try { 
                 this.recognition.stop(); 
@@ -1632,6 +1773,25 @@ export default class MessengerChat extends LightningElement {
             return 'voice-status-text shimmer-text';
         }
         return 'voice-status-text';
+    }
+
+    // Add getter for voice pulse circle class with dynamic states
+    get voicePulseCircleClass() {
+        let baseClass = 'voice-pulse-circle';
+        
+        if (this.isSpeaking) {
+            return baseClass + ' speaking';
+        } else if (this.isListening) {
+            // Add 'active' class when user is actively speaking into microphone
+            if (this.isActivelySpeaking) {
+                return baseClass + ' listening active';
+            }
+            return baseClass + ' listening';
+        } else if (this.voiceStatusText.includes('thinking')) {
+            return baseClass + ' thinking';
+        }
+        
+        return baseClass;
     }
 
     // Voice mode should be shown in Experience Cloud or when explicitly enabled
@@ -1941,8 +2101,14 @@ export default class MessengerChat extends LightningElement {
         
         // 4. Reset voice state immediately
         this.isSpeaking = false;
-        this.isListening = true;
-        this.voiceStatusText = 'Listening to you...';
+        
+        // Only restart listening if microphone is not manually muted
+        if (!this.isMicrophoneMuted) {
+            this.isListening = true;
+            this.voiceStatusText = 'Listening to you...';
+        } else {
+            this.voiceStatusText = 'Microphone muted';
+        }
         
         // 5. Clear any internal audio references
         if (this.currentAudio) {
@@ -1954,21 +2120,23 @@ export default class MessengerChat extends LightningElement {
             }
         }
         
-        // 6. Start voice recognition after a short delay
-        setTimeout(() => {
-            if (this.recognition) {
-                try {
-                    this.recognition.abort();
-                } catch (e) {
-                    console.error('Error aborting recognition:', e);
+        // 6. Start voice recognition after a short delay (only if not muted)
+        if (!this.isMicrophoneMuted) {
+            setTimeout(() => {
+                if (this.recognition) {
+                    try {
+                        this.recognition.abort();
+                    } catch (e) {
+                        console.error('Error aborting recognition:', e);
+                    }
                 }
-            }
-            
-            // Start fresh recognition
-            if (this.isVoiceMode) {
-                setTimeout(() => this.startVoiceRecognition(), 200);
-            }
-        }, 100);
+                
+                // Start fresh recognition
+                if (this.isVoiceMode) {
+                    setTimeout(() => this.startVoiceRecognition(), 200);
+                }
+            }, 100);
+        }
     }
 
     get showExpandOption() {
@@ -1988,7 +2156,11 @@ export default class MessengerChat extends LightningElement {
     // Add this getter method to provide the placeholder text for the search input
     get searchInputPlaceholder() {
         if (this.isSearchMode && this.isFirstUserMessage) {
-            return "Let me know what's on your mind!";
+            // Show "Initializing..." when input is disabled during first load
+            if (!this.isInitialized) {
+                return "Initializing Agentforce...";
+            }
+            return "Chat with Agentforce";
         }
         return "Send a Message to Agentforce";
     }

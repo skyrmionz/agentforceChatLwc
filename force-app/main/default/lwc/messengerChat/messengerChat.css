@@ -48,13 +48,15 @@
     left: 20px;
 }
 
-/* Base styling for chat window */
+/* Base styling for chat window - Fixed size */
 .chat-window {
     position: fixed !important;
     bottom: 30px !important;
     right: 30px !important;
     width: 400px !important;
     height: 600px !important;
+    min-height: 600px !important;
+    max-height: 600px !important;
     background-color: #fff !important;
     border-radius: 15px !important;
     box-shadow: 0 5px 25px rgba(0, 0, 0, 0.3) !important;
@@ -100,7 +102,7 @@
     left: 30px;
 }
 
-/* Header styling */
+/* Header styling - Fixed height */
 .chat-header {
     background-color: var(--messengerChatThemeColor, #0076d3) !important;
     color: white !important;
@@ -112,6 +114,11 @@
     border-radius: 15px 15px 0 0 !important;
     cursor: move !important;
     user-select: none !important;
+    flex-shrink: 0; /* Don't allow shrinking */
+    height: 80px; /* Fixed height */
+    min-height: 80px;
+    max-height: 80px;
+    box-sizing: border-box;
 }
 
 .chat-title {
@@ -143,28 +150,31 @@
     background-color: rgba(255, 255, 255, 0.2);
 }
 
-/* Message area */
+/* Message area - Fixed height with scrolling */
 .chat-messages {
     padding: 15px;
     padding-left: 8px;
     padding-right: 8px;
     padding-top: 35px;
     overflow-y: auto;
-    flex-grow: 1;
-    height: 70%;
+    flex: 1;
+    min-height: 0; /* Allow flex shrinking */
+    max-height: calc(600px - 80px - 140px); /* Total height - header - input area */
     display: flex;
     flex-direction: column;
     gap: 12px;
 }
 
-/* Input area */
+/* Input area - Fixed height */
 .chat-input {
     padding: 15px;
     border-top: 1px solid #eee;
     display: flex;
     flex-direction: column;
-    background-color: #f9f9f9;
-    height: auto;
+    flex-shrink: 0; /* Don't allow shrinking */
+    height: 140px; /* Fixed height */
+    min-height: 140px;
+    max-height: 140px;
     padding-bottom: 20px;
 }
 
@@ -650,7 +660,6 @@
 }
 
 .dark-mode .chat-input {
-    background-color: #252a36 !important;
     border-top-color: #313642 !important;
 }
 
@@ -659,7 +668,7 @@
 .dark-mode.chat-window textarea,
 .dark-mode .chat-window:not(.search-mode) textarea {
     background-color: #2d3748 !important;
-    color: #f0f0f0 !important;
+    color: white !important;
     border-color: #4a5568 !important;
 }
 
@@ -678,14 +687,14 @@
     color: #e2e8f0 !important;
 }
 
-/* Voice Mode Overlay - fix for all modes */
+/* Voice Mode Overlay - Modern Sesame-style design */
 .voice-mode-overlay {
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: #1a1c21;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
     z-index: 10;
     display: flex;
     align-items: center;
@@ -701,7 +710,7 @@
     height: 100%;
     border-radius: 12px;
     z-index: 100 !important; /* Ensure it appears above other elements */
-    background-color: #1a1c21;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
 }
 
 /* Fix search mode textarea when chat is started - align text to top */
@@ -740,51 +749,135 @@
     left: 15px !important; /* Match the textarea padding-left */
 }
 
-.voice-visualizer-container {
+/* Modern Voice Container - Sesame-style */
+.modern-voice-container {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    padding: 30px;
-    border-radius: 15px;
-    background-color: rgba(0, 0, 0, 0.5);
-    width: 80%;
-    max-width: 300px;
-}
-
-.voice-status-text {
-    color: white;
-    font-size: 18px;
-    font-weight: 600;
-    margin-bottom: 20px;
-    text-align: center;
-}
-
-.voice-visualizer {
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
-    height: 60px;
+    justify-content: space-between;
+    height: 100%;
+    padding: 40px 30px;
     width: 100%;
-    gap: 5px;
-    margin-bottom: 20px;
+    box-sizing: border-box;
 }
 
-.visualizer-bar {
-    width: 8px;
-    background-color: #0076d3;
-    height: 5px;
-    border-radius: 4px;
-    transition: height 0.1s ease;
-}
-
-.voice-instructions {
-    color: #ffffff;
-    font-size: 14px;
-    margin-top: 10px;
-    margin-bottom: 20px;
+/* Status text styling - modern and clean */
+.voice-status-text {
+    color: #2d3748;
+    font-size: 20px;
+    font-weight: 500;
+    margin-bottom: 0;
     text-align: center;
-    font-style: italic;
+    letter-spacing: -0.02em;
+}
+
+/* Large pulsing circle container */
+.voice-pulse-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 200px;
+    height: 200px;
+    flex-shrink: 0;
+}
+
+/* Main circle with gradient */
+.voice-pulse-circle {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 2;
+    box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
+    transition: all 0.3s ease;
+}
+
+/* Inner circle for icon */
+.voice-inner-circle {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(10px);
+}
+
+/* Agent icon styling */
+.voice-agent-icon {
+    --sds-c-icon-color-foreground-default: white !important;
+    transform: scale(1.2);
+}
+
+/* Pulse rings - only visible when actively speaking */
+.pulse-ring {
+    position: absolute;
+    border: 2px solid rgba(102, 126, 234, 0.4);
+    border-radius: 50%;
+    opacity: 0;
+    animation: none;
+}
+
+.pulse-ring-1 {
+    width: 140px;
+    height: 140px;
+}
+
+.pulse-ring-2 {
+    width: 160px;
+    height: 160px;
+}
+
+.pulse-ring-3 {
+    width: 180px;
+    height: 180px;
+}
+
+/* Show pulse rings only when actively speaking or agent is speaking */
+.voice-pulse-circle.listening.active ~ .pulse-ring,
+.voice-pulse-circle.speaking ~ .pulse-ring {
+    opacity: 1;
+    animation: pulse-expand 2s infinite ease-out;
+}
+
+.voice-pulse-circle.listening.active ~ .pulse-ring-1,
+.voice-pulse-circle.speaking ~ .pulse-ring-1 {
+    animation-delay: 0s;
+}
+
+.voice-pulse-circle.listening.active ~ .pulse-ring-2,
+.voice-pulse-circle.speaking ~ .pulse-ring-2 {
+    animation-delay: 0.7s;
+}
+
+.voice-pulse-circle.listening.active ~ .pulse-ring-3,
+.voice-pulse-circle.speaking ~ .pulse-ring-3 {
+    animation-delay: 1.4s;
+}
+
+/* Different colors for different states */
+.voice-pulse-circle.listening.active ~ .pulse-ring {
+    border-color: rgba(59, 130, 246, 0.4);
+}
+
+.voice-pulse-circle.speaking ~ .pulse-ring {
+    border-color: rgba(34, 197, 94, 0.4);
+}
+
+/* Action buttons container */
+.voice-action-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: center;
+    width: 100%;
+    max-width: 280px;
 }
 
 .voice-continue-button {
@@ -842,21 +935,52 @@
     --sds-c-icon-color-foreground-default: white;
 }
 
-@keyframes voice-bar {
+/* Pulse animation for rings */
+@keyframes pulse-expand {
     0% {
-        height: 5px;
-    }
-    50% {
-        height: 30px;
+        transform: scale(1);
+        opacity: 1;
     }
     100% {
-        height: 5px;
+        transform: scale(1.4);
+        opacity: 0;
     }
 }
 
-/* Dark mode override for voice visualizer */
-.dark-mode .visualizer-bar {
-    background-color: #3182ce;
+/* Active states for different voice modes - only pulse when actively speaking */
+.voice-pulse-circle.listening {
+    box-shadow: 0 8px 32px rgba(59, 130, 246, 0.4);
+    /* No animation when just listening idle */
+}
+
+.voice-pulse-circle.listening.active {
+    animation: gentle-pulse 2s infinite ease-in-out;
+    box-shadow: 0 8px 32px rgba(59, 130, 246, 0.6);
+}
+
+.voice-pulse-circle.speaking {
+    animation: speaking-pulse 1s infinite ease-in-out;
+    box-shadow: 0 8px 32px rgba(34, 197, 94, 0.4);
+}
+
+.voice-pulse-circle.thinking {
+    box-shadow: 0 8px 32px rgba(168, 85, 247, 0.4);
+    /* No animation when thinking - just static glow */
+}
+
+@keyframes gentle-pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+@keyframes speaking-pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+@keyframes thinking-pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.03); }
 }
 
 /* Fix shimmer animation for correct left-to-right movement */
@@ -878,10 +1002,10 @@
     }
 }
 
-/* Enhanced voice mode shimmer effect - text-only shimmer like message window */
+/* Enhanced voice mode shimmer effect - modern design */
 .voice-status-text.shimmer-text {
-    color: white;
-    font-weight: 600;
+    color: #2d3748;
+    font-weight: 500;
     font-size: 20px;
     padding: 8px 12px;
     text-align: center;
@@ -890,82 +1014,127 @@
     white-space: nowrap;
     width: 100%;
     background: linear-gradient(90deg, 
-        white 0%, 
-        white 35%, 
-        #404040 50%, 
-        white 65%, 
-        white 100%);
+        #2d3748 0%, 
+        #2d3748 35%, 
+        #9ca3af 50%, 
+        #2d3748 65%, 
+        #2d3748 100%);
     background-size: 200% 100%;
     background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     animation: shimmer 1.5s infinite linear;
+    letter-spacing: -0.02em;
 }
 
-/* Voice mode buttons - consistent styling */
-.voice-continue-button {
+/* Modern action buttons */
+.voice-action-button {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 5px;
-    background-color: #0076d3;
-    color: white;
+    gap: 8px;
     border: none;
-    border-radius: 20px;
-    padding: 8px 16px;
-    font-size: 14px;
-    font-weight: 600;
+    border-radius: 50px;
+    padding: 14px 24px;
+    font-size: 15px;
+    font-weight: 500;
     cursor: pointer;
-    transition: background-color 0.2s;
-    margin-bottom: 12px;
-    width: 180px;
-    height: 40px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: all 0.2s ease;
+    width: 100%;
+    max-width: 200px;
+    height: 48px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
     white-space: nowrap;
 }
 
+.voice-action-button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+.voice-action-button lightning-icon {
+    --sds-c-icon-color-foreground-default: currentColor;
+}
+
+.voice-action-button span {
+    font-weight: 500;
+}
+
+/* Continue speaking button */
+.voice-continue-button {
+    background: rgba(34, 197, 94, 0.9);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
 .voice-continue-button:hover {
-    background-color: #0062b0;
+    background: rgba(34, 197, 94, 1);
 }
 
-.voice-continue-button lightning-icon {
-    --sds-c-icon-color-foreground-default: white;
+/* Mute button */
+.voice-mute-button {
+    background: rgba(59, 130, 246, 0.9);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-.voice-exit-button {
+.voice-mute-button:hover {
+    background: rgba(59, 130, 246, 1);
+}
+
+/* Top right exit button */
+.voice-exit-button-topright {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    width: 40px;
+    height: 40px;
+    background-color: rgba(0, 0, 0, 0.6);
+    color: white;
+    border: none;
+    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 5px;
-    background-color: #e53935;
-    color: white;
-    border: none;
-    border-radius: 20px;
-    padding: 8px 16px;
-    font-size: 14px;
-    font-weight: 600;
     cursor: pointer;
     transition: background-color 0.2s;
-    width: 180px;
-    height: 40px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    z-index: 101;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
-.voice-exit-button:hover {
-    background-color: #c62828;
+.voice-exit-button-topright:hover {
+    background-color: rgba(0, 0, 0, 0.8);
 }
 
-.voice-exit-button lightning-icon {
+.voice-exit-button-topright lightning-icon {
     --sds-c-icon-color-foreground-default: white;
 }
 
-/* Dark mode styling for voice continue button */
-.dark-mode .voice-continue-button {
-    background-color: #3182ce;
+/* Dark mode overrides for voice mode */
+.dark-mode .voice-mode-overlay {
+    background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
 }
 
-.dark-mode .voice-continue-button:hover {
-    background-color: #2c5282;
+.dark-mode .chat-window.search-mode .voice-mode-overlay {
+    background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+}
+
+.dark-mode .voice-status-text {
+    color: #e2e8f0;
+}
+
+.dark-mode .voice-status-text.shimmer-text {
+    background: linear-gradient(90deg, 
+        #e2e8f0 0%, 
+        #e2e8f0 35%, 
+        #718096 50%, 
+        #e2e8f0 65%, 
+        #e2e8f0 100%);
+    background-size: 200% 100%;
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
 
 /* Thinking process dropdown styling */
@@ -1297,18 +1466,19 @@
     background: white !important;
 }
 
-/* When not expanded, keep within container */
+/* When not expanded, keep within container with fixed height */
 .chat-window.search-mode:not(.expanded):not(.first-message) {
     position: relative !important;
     width: 100% !important;
     max-width: 100% !important;
-    height: auto !important;
-    min-height: 500px !important;
-    max-height: none !important;
+    height: 600px !important;
+    min-height: 600px !important;
+    max-height: 600px !important;
     display: flex;
     flex-direction: column;
     background: #fff !important; /* Remove gradient after conversation starts */
     padding: 0 !important; /* Remove padding after conversation starts */
+    overflow: hidden; /* Prevent container from expanding */
 }
 
 .search-mode-image {
@@ -1391,8 +1561,8 @@
     flex: 1;
     overflow-y: auto;
     padding: 15px;
-    height: 100%;
-    max-height: none;
+    min-height: 0; /* Allow flex shrinking */
+    max-height: calc(600px - 80px - 140px); /* Same constraint as regular mode */
     width: 100% !important;
 }
 
@@ -1406,15 +1576,18 @@
     max-width: 80% !important; /* Allow messages to be wider */
 }
 
-/* Fix the chat input area to use full width in conversation mode */
+/* Fix the chat input area to use full width in conversation mode with fixed height */
 .chat-window.search-mode:not(.first-message) .chat-input {
     position: relative;
     width: 100% !important;
     max-width: 100% !important;
     padding: 15px !important;
     margin: 0 !important;
-    background-color: #f9f9f9 !important;
     border-top: 1px solid #eee !important;
+    flex-shrink: 0; /* Don't allow shrinking */
+    height: 140px; /* Same as regular mode */
+    min-height: 140px;
+    max-height: 140px;
 }
 
 /* Dark mode after conversation starts */
@@ -1424,7 +1597,6 @@
 
 /* Dark mode chat input after conversation starts */
 .dark-mode.search-mode:not(.first-message) .chat-input {
-    background-color: #252a36 !important;
     border-top-color: #313642 !important;
 }
 
@@ -1460,6 +1632,8 @@
 /* Fix dark mode input styling */
 .dark-mode.search-mode:not(.first-message) .input-container textarea {
     border-color: #4a5568 !important;
+    background-color: #2d3748 !important;
+    color: white !important;
 }
 
 /* Message container styles - added to fix user message alignment */

@@ -116,31 +116,40 @@
             
             <!-- Voice Mode Overlay -->
             <div if:true={isVoiceMode} class="voice-mode-overlay">
-                <div class="voice-visualizer-container">
+                <!-- Exit Voice Mode button - top right corner -->
+                <button onclick={toggleVoiceInput} class="voice-exit-button-topright">
+                    <lightning-icon icon-name="utility:close" size="small"></lightning-icon>
+                </button>
+                
+                <div class="modern-voice-container">
+                    <!-- Status text at the top -->
                     <div class={voiceStatusClass} data-text={voiceStatusText}>{voiceStatusText}</div>
-                    <div class="voice-visualizer">
-                        <div class="visualizer-bar"></div>
-                        <div class="visualizer-bar"></div>
-                        <div class="visualizer-bar"></div>
-                        <div class="visualizer-bar"></div>
-                        <div class="visualizer-bar"></div>
-                        <div class="visualizer-bar"></div>
-                        <div class="visualizer-bar"></div>
+                    
+                    <!-- Large pulsing circle in center -->
+                    <div class="voice-pulse-container">
+                        <div class={voicePulseCircleClass}>
+                            <div class="voice-inner-circle">
+                                <lightning-icon icon-name="utility:agent_astro" size="large" class="voice-agent-icon"></lightning-icon>
+                            </div>
+                        </div>
+                        <!-- Pulse rings -->
+                        <div class="pulse-ring pulse-ring-1"></div>
+                        <div class="pulse-ring pulse-ring-2"></div>
+                        <div class="pulse-ring pulse-ring-3"></div>
                     </div>
-                    <div if:true={isListening} class="voice-instructions">
-                        Speak now...
+                    
+                    <!-- Action buttons at bottom -->
+                    <div class="voice-action-buttons">
+                        <button if:true={isSpeaking} onclick={handleContinueSpeaking} class="voice-action-button voice-continue-button">
+                            <lightning-icon icon-name="utility:unmuted" size="small"></lightning-icon>
+                            <span>Continue Speaking</span>
+                        </button>
+                        
+                        <button if:false={isSpeaking} onclick={handleToggleMicrophone} class="voice-action-button voice-mute-button" title={muteButtonText}>
+                            <lightning-icon icon-name={muteIcon} size="small"></lightning-icon>
+                            <span>{muteButtonText}</span>
+                        </button>
                     </div>
-                    <div if:true={isSpeaking} class="voice-instructions">
-                        Agent is speaking...
-                    </div>
-                    <button if:true={isSpeaking} onclick={handleContinueSpeaking} class="voice-continue-button">
-                        <lightning-icon icon-name="utility:unmuted" size="small"></lightning-icon>
-                        Continue Speaking
-                    </button>
-                    <button onclick={toggleVoiceInput} class="voice-exit-button">
-                        <lightning-icon icon-name="utility:close" size="small"></lightning-icon>
-                        Exit Voice Mode
-                    </button>
                 </div>
             </div>
             
