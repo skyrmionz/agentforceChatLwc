@@ -2,7 +2,7 @@
     <!-- Messenger Chat Component -->
     <div class="messenger-chat-container" data-state={componentState}>
         <!-- Chat Bubble (initial state) -->
-        <div if:true={showChatBubble} class="chat-bubble" onclick={handleChatBubbleClick}>
+        <div if:true={showChatBubble} class="chat-bubble" style={chatBubbleStyle} onclick={handleChatBubbleClick}>
             <div class="bubble-icon">
                 <lightning-icon icon-name="utility:agent_astro" alternative-text="Agentforce" size="small" title="Agentforce"></lightning-icon>
             </div>
@@ -115,7 +115,7 @@
             </div>
             
             <!-- Voice Mode Overlay -->
-            <div if:true={isVoiceMode} class="voice-mode-overlay">
+            <div if:true={isVoiceMode} class={voiceModeOverlayClass}>
                 <!-- Exit Voice Mode button - top right corner -->
                 <button onclick={toggleVoiceInput} class="voice-exit-button-topright">
                     <lightning-icon icon-name="utility:close" size="small"></lightning-icon>
@@ -145,7 +145,7 @@
                             <span>Continue Speaking</span>
                         </button>
                         
-                        <button if:false={isSpeaking} onclick={handleToggleMicrophone} class="voice-action-button voice-mute-button" title={muteButtonText}>
+                        <button if:true={showMuteButton} onclick={handleToggleMicrophone} class="voice-action-button voice-mute-button" title={muteButtonText}>
                             <lightning-icon icon-name={muteIcon} size="small"></lightning-icon>
                             <span>{muteButtonText}</span>
                         </button>

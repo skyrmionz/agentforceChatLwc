@@ -22,8 +22,8 @@ export default class MessengerChat extends LightningElement {
     @api consumerSecret = ''; // Consumer Secret for Agentforce API auth
     @api searchMode = false; // Search Mode configuration
     @api searchModeWelcomeText = 'How can Agentforce help?'; // Welcome text for search mode
-    @api gradientStartColor = '#F0F7FF'; // Start color for the search mode background gradient
-    @api gradientEndColor = '#C8DCFF'; // End color for the search mode background gradient
+    @api gradientStartColor = '#F0F7FF'; // DEPRECATED: No longer used, kept for backwards compatibility
+    @api gradientEndColor = '#C8DCFF'; // DEPRECATED: No longer used, kept for backwards compatibility
     @api themeColor = '#0076d3'; // Theme color for header and user messages
 
     // Reactive component state
@@ -51,6 +51,7 @@ export default class MessengerChat extends LightningElement {
     @track isSearchMode = false; // Track if currently in search mode
     @track isFirstUserMessage = true; // Track if this is the first user message
     @track isActivelySpeaking = false; // Track if user is actively speaking (detected by mic)
+    @track isVoiceModeTransitioning = false; // Track voice mode transition state
     murfttsEndpoint = 'https://api.murf.ai/v1/speech/generate';
 
     // Internal flags
@@ -553,15 +554,7 @@ export default class MessengerChat extends LightningElement {
             
             // Activate voice mode immediately after the first message if configured
             if (shouldActivateVoiceMode) {
-                // Manually activate voice mode in "thinking" state instead of using toggleVoiceInput()
-                this.stopAudioPlayback(); // Stop any audio first
-                this.isVoiceMode = true;
-                this.isListening = false; // Not listening while thinking
-                this.isSpeaking = false;
-                this.isMicrophoneMuted = true; // Auto-mute during thinking
-                this.voiceStatusText = 'Agentforce is thinking...';
-                this.showOptionsMenu = false;
-                // Don't start voice recognition yet since we're in thinking mode
+                this.activateVoiceModeWithTransition();
             }
         }
     }
@@ -883,9 +876,10 @@ export default class MessengerChat extends LightningElement {
                         this.voicePauseTimer = setTimeout(() => {
                             console.log('Voice pause detected, sending message:', this.lastTranscript);
                             
-                            // Set UI state to "thinking"
+                            // Set UI state to "thinking" and auto-mute microphone
                             this.isListening = false;
                             this.isActivelySpeaking = false;
+                            this.isMicrophoneMuted = true; // Auto-mute during thinking
                             this.voiceStatusText = 'Agentforce is thinking...';
                             
                             // Add the user message to the conversation
@@ -1469,6 +1463,12 @@ export default class MessengerChat extends LightningElement {
     get muteButtonText() {
         return this.isMicrophoneMuted ? 'Unmute' : 'Mute';
     }
+
+    // Determine when the mute button should be visible
+    get showMuteButton() {
+        // Hide mute button when agent is speaking or when Agentforce is thinking
+        return !this.isSpeaking && !this.voiceStatusText.includes('thinking');
+    }
     
     get themeMenuText() {
         return this.isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode';
@@ -1685,6 +1685,24 @@ export default class MessengerChat extends LightningElement {
         this.showOptionsMenu = false;
     }
 
+    // Smooth voice mode activation with transition
+    activateVoiceModeWithTransition() {
+        // Activate voice mode immediately to prevent flash, but with transition state
+        this.stopAudioPlayback(); // Stop any audio first
+        this.showOptionsMenu = false;
+        this.isVoiceModeTransitioning = true;
+        this.isVoiceMode = true; // Show overlay immediately
+        this.isListening = false; // Not listening while thinking
+        this.isSpeaking = false;
+        this.isMicrophoneMuted = true; // Auto-mute during thinking
+        this.voiceStatusText = 'Agentforce is thinking...';
+        
+        // Reset transition state after animation completes
+        setTimeout(() => {
+            this.isVoiceModeTransitioning = false;
+        }, 500); // Match CSS animation duration
+    }
+
     handleToggleMicrophone() {
         this.isMicrophoneMuted = !this.isMicrophoneMuted;
         
@@ -1791,6 +1809,15 @@ export default class MessengerChat extends LightningElement {
             return baseClass + ' thinking';
         }
         
+        return baseClass;
+    }
+
+    // Add getter for voice mode overlay class with transition state
+    get voiceModeOverlayClass() {
+        let baseClass = 'voice-mode-overlay';
+        if (this.isVoiceModeTransitioning) {
+            return baseClass + ' transitioning';
+        }
         return baseClass;
     }
 
@@ -2165,35 +2192,7 @@ export default class MessengerChat extends LightningElement {
         return "Send a Message to Agentforce";
     }
 
-    // Add this getter to generate the gradient style
-    get searchModeGradientStyle() {
-        const startColor = this.gradientStartColor || '#F0F7FF';
-        const endColor = this.gradientEndColor || '#C8DCFF';
-        return `background: linear-gradient(to bottom, ${this.hexToRgba(startColor, 0.15)}, ${this.hexToRgba(endColor, 0.15)});`;
-    }
 
-    // Convert hex color to rgba
-    hexToRgba(hex, alpha) {
-        let r = 0, g = 0, b = 0;
-        
-        // Check if the hex color is in the format #RRGGBB or #RGB
-        if (hex.match(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/)) {
-            // Remove the # character
-            hex = hex.substring(1);
-            
-            // Convert #RGB to #RRGGBB
-            if (hex.length === 3) {
-                hex = hex.split('').map(char => char + char).join('');
-            }
-            
-            // Convert the hex values to RGB
-            r = parseInt(hex.substring(0, 2), 16);
-            g = parseInt(hex.substring(2, 4), 16);
-            b = parseInt(hex.substring(4, 6), 16);
-        }
-        
-        return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-    }
 
     // Update the chatWindowStyle getter
     get chatWindowStyle() {
@@ -2223,6 +2222,11 @@ export default class MessengerChat extends LightningElement {
 
     // Add this getter to apply custom theme color to user messages
     get userMessageStyle() {
+        return `background-color: ${this.themeColor} !important;`;
+    }
+
+    // Add this getter to apply custom theme color to the chat bubble
+    get chatBubbleStyle() {
         return `background-color: ${this.themeColor} !important;`;
     }
 

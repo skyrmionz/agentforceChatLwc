@@ -25,8 +25,8 @@
             <property name="murfApiKey" type="String" label="Murf API Key" description="API key for Murf.ai text-to-speech service" />
             <property name="searchMode" type="Boolean" label="Search Mode" description="Enable search-like interface" default="false" />
             <property name="searchModeWelcomeText" type="String" label="Search Mode Welcome Text" description="Welcome text shown above the search bar in search mode" default="How can Agentforce help?" />
-            <property name="gradientStartColor" type="String" label="Gradient Start Color" description="Start color for the search mode background gradient" default="#F0F7FF" />
-            <property name="gradientEndColor" type="String" label="Gradient End Color" description="End color for the search mode background gradient" default="#C8DCFF" />
+            <property name="gradientStartColor" type="String" label="[DEPRECATED] Gradient Start Color" description="DEPRECATED: This setting is no longer used and will be removed in a future version" default="#F0F7FF" />
+            <property name="gradientEndColor" type="String" label="[DEPRECATED] Gradient End Color" description="DEPRECATED: This setting is no longer used and will be removed in a future version" default="#C8DCFF" />
             <property name="themeColor" type="String" label="Theme Color" description="Color for the chat header and user messages" default="#0076d3" />
         </targetConfig>
         <targetConfig targets="lightningCommunity__Default">
@@ -39,8 +39,8 @@
             <property name="defaultVoiceMode" type="Boolean" label="Default Voice Mode" description="Automatically start in voice mode after the first message is sent" />
             <property name="searchMode" type="Boolean" label="Search Mode" description="Enable search-like interface" default="false" />
             <property name="searchModeWelcomeText" type="String" label="Search Mode Welcome Text" description="Welcome text shown above the search bar in search mode" default="How can Agentforce help?" />
-            <property name="gradientStartColor" type="String" label="Gradient Start Color" description="Start color for the search mode background gradient" default="#F0F7FF" />
-            <property name="gradientEndColor" type="String" label="Gradient End Color" description="End color for the search mode background gradient" default="#C8DCFF" />
+            <property name="gradientStartColor" type="String" label="[DEPRECATED] Gradient Start Color" description="DEPRECATED: This setting is no longer used and will be removed in a future version" default="#F0F7FF" />
+            <property name="gradientEndColor" type="String" label="[DEPRECATED] Gradient End Color" description="DEPRECATED: This setting is no longer used and will be removed in a future version" default="#C8DCFF" />
             <property name="themeColor" type="String" label="Theme Color" description="Color for the chat header and user messages" default="#0076d3" />
         </targetConfig>
     </targetConfigs>
