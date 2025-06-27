@@ -268,7 +268,6 @@ You can do this with the LWC on the Experience Cloud Builder:
 1. Add a Murf API Key for Voice Experience
 2. Do a "Search Mode" which mimics the help.salesforce.com Search Experience
 3. Choose your own theme color for the component
-4. Choose gradient coloring for Search Mode
+4. Set the chatting to start the experience from Voice Mode.
 
 ## Looking Forward
-- Planning on adding multi-modal image text extraction capabilities with Gemini API (Cameron Karagitz to add!)
