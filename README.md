@@ -263,6 +263,7 @@ You can customize the appearance and behavior of the chat widget by:
 2. Updating default properties in `messengerChat.js`
 3. Modifying the HTML to place objects in `messengerChat.html`
 4. Configuring component properties in Experience Builder
+5. Add an "Image/File Processing" Prompt as an Action to the Agent so it can process them.
 
 You can do this with the LWC on the Experience Cloud Builder:
 1. Add a Murf API Key for Voice Experience

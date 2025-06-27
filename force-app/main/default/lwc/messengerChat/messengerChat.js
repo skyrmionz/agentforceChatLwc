@@ -52,6 +52,7 @@ export default class MessengerChat extends LightningElement {
     @track isFirstUserMessage = true; // Track if this is the first user message
     @track isActivelySpeaking = false; // Track if user is actively speaking (detected by mic)
     @track isVoiceModeTransitioning = false; // Track voice mode transition state
+    @track attachedFile = null; // Track attached file for upload
     murfttsEndpoint = 'https://api.murf.ai/v1/speech/generate';
 
     // Internal flags
@@ -525,28 +526,54 @@ export default class MessengerChat extends LightningElement {
 
     sendMessage() {
         const text = this.template.querySelector('.message-textarea').value.trim();
-        if (text === '') return;
+        
+        // Allow sending if there's text or an attached file
+        if (text === '' && !this.attachedFile) return;
         
         if (this.isSearchMode && this.isFirstUserMessage) {
             // For the first message in search mode, stay in container size
             // Don't expand automatically, keep confined to container
         }
         
-        this.addUserMessage(text);
-        this.getAgentResponse(text);
+        // Create message with file attachment if present
+        let messageContent = text;
+        if (this.attachedFile) {
+            if (text) {
+                messageContent = `${text}\n\n[Attached: ${this.attachedFile.name}]`;
+            } else {
+                messageContent = `[Attached: ${this.attachedFile.name}]`;
+            }
+        }
+        
+        this.addUserMessage(messageContent, this.attachedFile);
+        this.getAgentResponse(messageContent);
         this.template.querySelector('.message-textarea').value = '';
         this.messageText = '';
+        
+        // Clear the attached file after sending
+        this.attachedFile = null;
     }
 
-    addUserMessage(text) {
-        if (!text.trim()) return;
+    addUserMessage(text, attachedFile = null) {
+        if (!text.trim() && !attachedFile) return;
         
         // Check if this is the first message and default voice mode is enabled
         // Only activate if not already in voice mode
         const shouldActivateVoiceMode = this.isFirstUserMessage && this.defaultVoiceMode && 
                                        !this.isVoiceMode && (this.allowVoiceMode || this.isEmbedded);
         
-        this.addMessage(text, 'user');
+        // Create message object with file attachment if present
+        const messageObj = {
+            id: `msg_${Date.now()}`,
+            text: text || '',
+            sender: 'user',
+            cssClass: 'message user-message',
+            timestamp: this.getTimestamp(),
+            attachedFile: attachedFile
+        };
+        
+        this.messages = [...this.messages, messageObj];
+        setTimeout(() => { this.scrollToBottom(); }, 50);
         
         // Update first message flag and activate voice mode if configured
         if (this.isFirstUserMessage) {
@@ -2255,6 +2282,69 @@ export default class MessengerChat extends LightningElement {
             this.scrollToBottom();
             this.shouldScrollToBottom = false;
         }
+    }
+
+    // File attachment methods
+    handleAttachFile() {
+        const fileInput = this.template.querySelector('.file-input-hidden');
+        if (fileInput) {
+            fileInput.click();
+        }
+    }
+
+    handleFileSelect(event) {
+        const file = event.target.files[0];
+        if (file) {
+            // Check file size (limit to 10MB)
+            const maxSize = 10 * 1024 * 1024; // 10MB in bytes
+            if (file.size > maxSize) {
+                this.showToast('File Too Large', 'Please select a file smaller than 10MB.', 'error');
+                return;
+            }
+
+            // Check file type
+            const allowedTypes = [
+                'image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp',
+                'application/pdf', 'text/plain',
+                'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+            ];
+            
+            if (!allowedTypes.includes(file.type)) {
+                this.showToast('Unsupported File Type', 'Please select an image, PDF, or document file.', 'error');
+                return;
+            }
+
+            // Create file reader to get data URL for preview
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                this.attachedFile = {
+                    name: file.name,
+                    size: file.size,
+                    type: file.type,
+                    sizeFormatted: this.formatFileSize(file.size),
+                    isImage: file.type.startsWith('image/'),
+                    dataUrl: e.target.result,
+                    file: file // Store the actual file object
+                };
+            };
+            
+            reader.readAsDataURL(file);
+        }
+        
+        // Clear the input so the same file can be selected again
+        event.target.value = '';
+    }
+
+    handleRemoveFile() {
+        this.attachedFile = null;
+    }
+
+    formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
     }
 
 }

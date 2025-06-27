@@ -105,7 +105,23 @@
                         <template if:false={message.isAgentMessage}>
                             <div class="message-container user-message">
                                 <div class="message-content" style={userMessageStyle}>
-                                    <p>{message.text}</p>
+                                    <template if:true={message.attachedFile}>
+                                        <div class="message-file-attachment">
+                                            <template if:true={message.attachedFile.isImage}>
+                                                <img src={message.attachedFile.dataUrl} alt="Attached image" class="message-attached-image" />
+                                            </template>
+                                            <template if:false={message.attachedFile.isImage}>
+                                                <div class="message-file-info">
+                                                    <lightning-icon icon-name="utility:file" size="small"></lightning-icon>
+                                                    <span class="file-name">{message.attachedFile.name}</span>
+                                                    <span class="file-size">({message.attachedFile.sizeFormatted})</span>
+                                                </div>
+                                            </template>
+                                        </div>
+                                    </template>
+                                    <template if:true={message.text}>
+                                        <p>{message.text}</p>
+                                    </template>
                                 </div>
                             </div>
                         </template>
@@ -155,8 +171,41 @@
             
             <!-- Chat Input Container -->
             <div class="chat-input">
+                <!-- File attachment preview -->
+                <template if:true={attachedFile}>
+                    <div class="attached-file-preview">
+                        <div class="file-preview-content">
+                            <template if:true={attachedFile.isImage}>
+                                <img src={attachedFile.dataUrl} alt="Attached image" class="attached-image-preview" />
+                            </template>
+                            <template if:false={attachedFile.isImage}>
+                                <div class="file-icon-preview">
+                                    <lightning-icon icon-name="utility:file" size="medium"></lightning-icon>
+                                </div>
+                            </template>
+                            <div class="file-info">
+                                <span class="file-name">{attachedFile.name}</span>
+                                <span class="file-size">{attachedFile.sizeFormatted}</span>
+                            </div>
+                        </div>
+                        <button class="remove-file-button" onclick={handleRemoveFile} title="Remove file">
+                            <lightning-icon icon-name="utility:close" size="x-small"></lightning-icon>
+                        </button>
+                    </div>
+                </template>
+                
                 <div class="input-container">
-                    <textarea placeholder={searchInputPlaceholder} onkeydown={handleKeyPress} onkeyup={handleMessageChange} disabled={isInputDisabled} class="message-textarea"></textarea>
+                    <!-- Hidden file input -->
+                    <input type="file" class="file-input-hidden" onchange={handleFileSelect} accept="image/*,.pdf,.doc,.docx,.txt" />
+                    
+                    <div class="textarea-wrapper">
+                        <!-- File attachment button inside textarea -->
+                        <button class="attach-file-button-inside" onclick={handleAttachFile} title="Attach file" disabled={isInputDisabled}>
+                            <lightning-icon icon-name="utility:add" size="x-small"></lightning-icon>
+                        </button>
+                        
+                        <textarea placeholder={searchInputPlaceholder} onkeydown={handleKeyPress} onkeyup={handleMessageChange} disabled={isInputDisabled} class="message-textarea"></textarea>
+                    </div>
                 </div>
             </div>
         </div>

@@ -191,7 +191,7 @@
 }
 
 /* Fix textarea to always use the expanded size */
-.chat-window:not(.search-mode) textarea {
+.chat-window:not(.search-mode) .textarea-wrapper .message-textarea {
     border: 1px solid #ddd;
     border-radius: 20px;
     resize: none !important;
@@ -206,7 +206,7 @@
     color: #000 !important;
     overflow-y: auto !important; /* Enable scrolling for content beyond 3 lines */
     box-sizing: border-box !important;
-    padding: 14px 15px !important;
+    padding: 14px 36px 14px 15px !important; /* Extra right padding for the button */
     line-height: 20px !important;
     transition: none !important;
     display: block !important;
@@ -219,23 +219,23 @@
 }
 
 /* Clean up placeholder styling - keep it simple */
-.chat-window textarea::placeholder {
+.chat-window .textarea-wrapper .message-textarea::placeholder {
     color: #666 !important;
     opacity: 1;
     line-height: 22px;
 }
 
-.dark-mode textarea::placeholder {
+.dark-mode .textarea-wrapper .message-textarea::placeholder {
     color: #aaa !important;
     opacity: 1;
 }
 
 /* Show scrollbar only when content exceeds visible area */
-.chat-window textarea.expanded {
+.chat-window .textarea-wrapper .message-textarea.expanded {
     overflow-y: auto;
 }
 
-.chat-window textarea:focus {
+.chat-window .textarea-wrapper .message-textarea:focus {
     border-color: #0076d3;
     box-shadow: 0 0 0 1px #0076d3;
 }
@@ -663,16 +663,16 @@
     border-top-color: #313642 !important;
 }
 
-.dark-mode textarea,
-.dark-mode .chat-window textarea,
-.dark-mode.chat-window textarea,
-.dark-mode .chat-window:not(.search-mode) textarea {
+.dark-mode .textarea-wrapper .message-textarea,
+.dark-mode .chat-window .textarea-wrapper .message-textarea,
+.dark-mode.chat-window .textarea-wrapper .message-textarea,
+.dark-mode .chat-window:not(.search-mode) .textarea-wrapper .message-textarea {
     background-color: #2d3748 !important;
     color: white !important;
     border-color: #4a5568 !important;
 }
 
-.dark-mode textarea:focus {
+.dark-mode .textarea-wrapper .message-textarea:focus {
     border-color: #63b3ed !important;
     box-shadow: 0 0 0 1px #63b3ed !important;
 }
@@ -739,7 +739,7 @@
 }
 
 /* Fix search mode textarea when chat is started - align text to top */
-.chat-window.search-mode:not(.first-message) .input-container textarea {
+.chat-window.search-mode:not(.first-message) .input-container .textarea-wrapper .message-textarea {
     border: 1px solid #ddd !important;
     border-radius: 20px !important;
     resize: none !important;
@@ -754,7 +754,7 @@
     color: #000 !important;
     overflow-y: auto !important;
     box-sizing: border-box !important;
-    padding: 14px 15px !important;
+    padding: 14px 36px 14px 15px !important; /* Extra right padding for the button */
     line-height: 20px !important; /* Change from centered to normal line height */
     transition: none !important;
     display: block !important;
@@ -763,7 +763,7 @@
 }
 
 /* Align placeholder text to the top in search mode after conversation starts */
-.chat-window.search-mode:not(.first-message) .input-container textarea::placeholder {
+.chat-window.search-mode:not(.first-message) .input-container .textarea-wrapper .message-textarea::placeholder {
     line-height: 20px !important; /* Match regular text line height */
     vertical-align: top !important;
     padding-top: 0 !important; /* Remove top padding to align with first line */
@@ -1331,6 +1331,15 @@
     bottom: 0 !important;
     border-radius: 0 !important;
     z-index: 9999 !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+/* Fix expanded mode input positioning */
+.chat-window.expanded .chat-input {
+    position: sticky !important;
+    bottom: 0 !important;
+    margin-top: auto !important;
 }
 
 .chat-window.expanded .chat-header {
@@ -1615,11 +1624,11 @@
 }
 
 /* Fix search mode textarea to maintain fixed size and centered text */
-.chat-window.search-mode .input-container textarea {
+.chat-window.search-mode .input-container .textarea-wrapper .message-textarea {
     height: 60px !important;
     min-height: 60px !important;
     max-height: 60px !important;
-    padding: 0 20px !important; /* Remove vertical padding */
+    padding: 0 36px 0 20px !important; /* Remove vertical padding, add right padding for button */
     font-size: 16px;
     border-radius: 30px;
     resize: none !important;
@@ -1632,7 +1641,7 @@
 }
 
 /* Ensure placeholder text is also centered in search mode */
-.chat-window.search-mode .input-container textarea::placeholder {
+.chat-window.search-mode .input-container .textarea-wrapper .message-textarea::placeholder {
     line-height: 60px !important;
     vertical-align: middle !important;
 }
@@ -1719,13 +1728,13 @@
 }
 
 /* Fix the gray outline around the input bar */
-.chat-window.search-mode:not(.first-message) .input-container textarea {
+.chat-window.search-mode:not(.first-message) .input-container .textarea-wrapper .message-textarea {
     border: 1px solid #ddd !important;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
 }
 
 /* Fix dark mode input styling */
-.dark-mode.search-mode:not(.first-message) .input-container textarea {
+.dark-mode.search-mode:not(.first-message) .input-container .textarea-wrapper .message-textarea {
     border-color: #4a5568 !important;
     background-color: #2d3748 !important;
     color: white !important;
@@ -1928,4 +1937,241 @@
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+/* File attachment styles */
+.file-input-hidden {
+    display: none !important;
+}
+
+.attach-file-button-inside {
+    position: absolute;
+    right: 8px;
+    bottom: 8px;
+    background: none;
+    border: none;
+    padding: 4px;
+    cursor: pointer;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s;
+    color: #666;
+    z-index: 10;
+    width: 20px;
+    height: 20px;
+}
+
+.attach-file-button-inside:hover:not(:disabled) {
+    background-color: #f0f0f0;
+    color: #333;
+}
+
+.attach-file-button-inside:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.dark-mode .attach-file-button-inside {
+    color: #aaa;
+}
+
+.dark-mode .attach-file-button-inside:hover:not(:disabled) {
+    background-color: #333;
+    color: #fff;
+}
+
+.attached-file-preview {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    position: relative;
+}
+
+.dark-mode .attached-file-preview {
+    background-color: #2d3748;
+    border-color: #4a5568;
+}
+
+.file-preview-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+}
+
+.attached-image-preview {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 6px;
+    border: 1px solid #dee2e6;
+}
+
+.dark-mode .attached-image-preview {
+    border-color: #4a5568;
+}
+
+.file-icon-preview {
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #e9ecef;
+    border-radius: 6px;
+    border: 1px solid #dee2e6;
+}
+
+.dark-mode .file-icon-preview {
+    background-color: #4a5568;
+    border-color: #718096;
+}
+
+.file-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+}
+
+.file-name {
+    font-weight: 500;
+    color: #333;
+    word-break: break-word;
+}
+
+.dark-mode .file-name {
+    color: #e2e8f0;
+}
+
+.file-size {
+    font-size: 12px;
+    color: #666;
+}
+
+.dark-mode .file-size {
+    color: #a0aec0;
+}
+
+.remove-file-button {
+    background: none;
+    border: none;
+    padding: 4px;
+    cursor: pointer;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s;
+    color: #666;
+    position: absolute;
+    top: 8px;
+    right: 8px;
+}
+
+.remove-file-button:hover {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.dark-mode .remove-file-button {
+    color: #a0aec0;
+}
+
+.dark-mode .remove-file-button:hover {
+    background-color: #742a2a;
+    color: #fed7d7;
+}
+
+/* Message file attachments */
+.message-file-attachment {
+    margin-bottom: 8px;
+}
+
+.message-attached-image {
+    max-width: 200px;
+    max-height: 200px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.message-attached-image:hover {
+    transform: scale(1.02);
+}
+
+.message-file-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.message-file-info .file-name {
+    color: white;
+    font-weight: 500;
+}
+
+.message-file-info .file-size {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 11px;
+}
+
+.message-file-info lightning-icon {
+    --sds-c-icon-color-foreground-default: white;
+}
+
+/* Update input container and add textarea wrapper */
+.input-container {
+    display: flex;
+    align-items: flex-end;
+    width: 100%;
+}
+
+.textarea-wrapper {
+    position: relative;
+    width: 100%;
+    display: flex;
+    align-items: center;
+}
+
+.textarea-wrapper .message-textarea {
+    flex: 1;
+    min-height: 40px;
+    max-height: 120px;
+    resize: none;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    padding: 12px 36px 12px 16px; /* Extra right padding for the button */
+    font-family: inherit;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+    width: 100%;
+}
+
+.textarea-wrapper .message-textarea:focus {
+    border-color: var(--messengerChatThemeColor, #0076d3);
+}
+
+/* Dark mode textarea styling */
+.dark-mode .textarea-wrapper .message-textarea {
+    background-color: #2d3748;
+    border-color: #4a5568;
+    color: #e2e8f0;
+}
+
+.dark-mode .textarea-wrapper .message-textarea:focus {
+    border-color: var(--messengerChatThemeColor, #0076d3);
 }
