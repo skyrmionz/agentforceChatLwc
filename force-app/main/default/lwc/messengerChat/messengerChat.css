@@ -175,7 +175,8 @@
     height: 140px; /* Fixed height */
     min-height: 140px;
     max-height: 140px;
-    padding-bottom: 20px;
+    padding-bottom: 15px; /* Reduced bottom padding */
+    justify-content: flex-end; /* Push content to bottom */
 }
 
 .textarea-container {
@@ -1963,6 +1964,20 @@
     height: 20px;
 }
 
+/* Search mode specific positioning - middle aligned only for initial state */
+.chat-window.search-mode.first-message .attach-file-button-inside {
+    top: 50%;
+    bottom: auto;
+    transform: translateY(-50%);
+}
+
+/* After conversation starts in search mode, use regular positioning */
+.chat-window.search-mode:not(.first-message) .attach-file-button-inside {
+    top: auto;
+    bottom: 8px;
+    transform: none;
+}
+
 .attach-file-button-inside:hover:not(:disabled) {
     background-color: #f0f0f0;
     color: #333;
@@ -1984,61 +1999,67 @@
 
 .attached-file-preview {
     display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px;
-    background-color: #f8f9fa;
-    border: 1px solid #dee2e6;
-    border-radius: 8px;
-    margin-bottom: 10px;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 8px 0;
+    margin-bottom: 8px;
     position: relative;
+    flex-wrap: wrap;
 }
 
 .dark-mode .attached-file-preview {
-    background-color: #2d3748;
-    border-color: #4a5568;
+    /* No background needed for square layout */
 }
 
 .file-preview-content {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 12px;
-    flex: 1;
-}
-
-.attached-image-preview {
+    gap: 4px;
+    position: relative;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 8px;
     width: 60px;
     height: 60px;
-    object-fit: cover;
-    border-radius: 6px;
-    border: 1px solid #dee2e6;
+    justify-content: center;
 }
 
-.dark-mode .attached-image-preview {
+.dark-mode .file-preview-content {
+    background-color: #2d3748;
     border-color: #4a5568;
 }
 
+.attached-image-preview {
+    width: 44px;
+    height: 44px;
+    object-fit: cover;
+    border-radius: 4px;
+    border: none;
+}
+
+.dark-mode .attached-image-preview {
+    /* No border needed */
+}
+
 .file-icon-preview {
-    width: 60px;
-    height: 60px;
+    width: 44px;
+    height: 44px;
     display: flex;
     align-items: center;
     justify-content: center;
     background-color: #e9ecef;
-    border-radius: 6px;
-    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    border: none;
 }
 
 .dark-mode .file-icon-preview {
     background-color: #4a5568;
-    border-color: #718096;
 }
 
 .file-info {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    flex: 1;
+    display: none; /* Hide file info in square layout */
 }
 
 .file-name {
@@ -2061,33 +2082,37 @@
 }
 
 .remove-file-button {
-    background: none;
+    background: rgba(0, 0, 0, 0.7);
     border: none;
-    padding: 4px;
+    padding: 2px;
     cursor: pointer;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: background-color 0.2s;
-    color: #666;
+    color: white;
     position: absolute;
-    top: 8px;
-    right: 8px;
+    top: -4px;
+    right: -4px;
+    width: 16px;
+    height: 16px;
+    z-index: 10;
 }
 
 .remove-file-button:hover {
-    background-color: #f8d7da;
-    color: #721c24;
+    background-color: rgba(220, 53, 69, 0.9);
+    color: white;
 }
 
 .dark-mode .remove-file-button {
-    color: #a0aec0;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
 }
 
 .dark-mode .remove-file-button:hover {
-    background-color: #742a2a;
-    color: #fed7d7;
+    background-color: rgba(220, 53, 69, 0.9);
+    color: white;
 }
 
 /* Message file attachments */
