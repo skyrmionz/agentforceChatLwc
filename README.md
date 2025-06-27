@@ -12,6 +12,7 @@ A Lightning Web Component that integrates with Salesforce's Agentforce API to pr
 - Responsive design
 - Rich formatting for chat messages
 - Agentforce reasoning display
+- File attachments
 
 ## Deployment Instructions
 
